@@ -1,10 +1,28 @@
+/* RGB */
+// $color-winter: rgba(163, 213, 255, 1);
+// $color-sky: rgba(131, 201, 244, 1);
+// $color-purple: rgba(111, 115, 210, 1);
+// $color-platinum: rgba(237, 227, 233, 1);
+// $color-blue: rgba(118, 129, 179, 1);
+
+$color-midnight: rgba(9, 82, 86, 1);
+$color-mint: rgba(79, 178, 134, 1);
+$color-black: rgba(24, 31, 28, 1);
+$color-persian: rgba(23, 163, 152, 1);
+$color-indigo: rgba(37, 66, 62, 1);
+
 body {
   // background: pink;
   font-family: 'Muli', sans-serif;
+  background-color: $color-indigo;
+  color: $color-black;
 }
 
 #title {
   text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: $color-mint;
 }
 
 .loading {
@@ -18,16 +36,7 @@ body {
   }
 }
 
-
-.hidden {
-  display: none;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-table, th, td {
+.sharetracking {
+  background-color: $color-mint;
   border: 1px solid black;
-  padding: 10px;
 }

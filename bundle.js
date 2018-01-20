@@ -116,42 +116,12 @@ var draw = function draw(data, tabletop) {
   var shareTracking = tabletop.sheets("John Copy of ShareTracking").elements;
   var distributions = tabletop.sheets("John Copy of InterestPurchases").elements;
 
-  (0, _share_tracking.drawChart)(shareTracking);
+  (0, _share_tracking.drawShares)(shareTracking);
 
-  var displayData = [];
-  for (var i = 0; i < shareTracking.length; i++) {
-    displayData.push(shareTracking[i]);
-    // displayData.push(data[i]["TOTAL ACCOUNT VALUE"]);
-  }
-  //
-  // console.log(displayData);
+  // const displayData = [];
   // for (let i = 0; i < shareTracking.length; i++) {
-  //   $("#root").append(shareTracking[i].TRANSACTIONS);
-  // }
-
-
-  // if (shareTracking) {
-  //   let len = shareTracking.length;
-  //   let txt = "";
-  //
-  //   if (len > 0) {
-  //     for (let i = 0; i < len; i++) {
-  //       // if (shareTracking[i].Name && shareTracking[i].Sign && shareTracking[i].Type) {
-  //         txt +=
-  //         "<tr><td>" + shareTracking[i].DATE +
-  //         "</td><td>" + shareTracking[i].TRANSACTIONS +
-  //         "</td><td>" + shareTracking[i]["TOTAL ACCOUNT VALUE"] +
-  //         "</td><td>" + shareTracking[i].SHARES +
-  //         "</td><td>" + shareTracking[i]["SHARE VALUE"] +
-  //         "</td><td>" + shareTracking[i].NOTE +
-  //         "</td><td>" + shareTracking[i].SUBNOTE +
-  //         "</td></tr>";
-  //       // }
-  //     }
-  //     if (txt !== "") {
-  //       $("#table").append(txt).removeClass("hidden");
-  //     }
-  //   }
+  //   displayData.push(shareTracking[i]);
+  //   // displayData.push(data[i]["TOTAL ACCOUNT VALUE"]);
   // }
 };
 
@@ -169,7 +139,7 @@ var loading = function loading() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var drawChart = exports.drawChart = function drawChart(data) {
+var drawShares = exports.drawShares = function drawShares(data) {
 
   var margin = { top: 20, right: 50, bottom: 30, left: 50 };
   var width = 960 - margin.left - margin.right;
@@ -202,7 +172,7 @@ var drawChart = exports.drawChart = function drawChart(data) {
     return y(d["SHARE VALUE"]);
   });
 
-  var svg = d3.select('body').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
+  var svg = d3.select('body').append('svg').classed('sharetracking', true).attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
 
   x.domain([data[0].DATE, data[data.length - 1].DATE]);
   y.domain(d3.extent(data, function (d) {
@@ -265,7 +235,7 @@ var drawChart = exports.drawChart = function drawChart(data) {
     return focus.style('display', 'none');
   }).on('mousemove', mousemove);
 
-  d3.selectAll('.line').style('fill', 'none').style('stroke', 'steelblue').style('stroke-width', '1.5px');
+  d3.selectAll('.line').style('fill', 'none').style('stroke', 'rgba(24, 31, 28, 1)').style('stroke-width', '1.5px');
 
   d3.select('.overlay').style('fill', 'none').style('pointer-events', 'all');
 

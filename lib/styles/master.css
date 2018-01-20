@@ -1,8 +1,14 @@
+/* RGB */
 body {
-  font-family: 'Muli', sans-serif; }
+  font-family: 'Muli', sans-serif;
+  background-color: #25423e;
+  color: #181f1c; }
 
 #title {
-  text-align: center; }
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #4fb286; }
 
 .loading {
   display: flex;
@@ -13,14 +19,8 @@ body {
     color: teal;
     display: none; }
 
-.hidden {
-  display: none; }
-
-table {
-  border-collapse: collapse; }
-
-table, th, td {
-  border: 1px solid black;
-  padding: 10px; }
+.sharetracking {
+  background-color: #4fb286;
+  border: 1px solid black; }
 
 /*# sourceMappingURL=master.css.map */
