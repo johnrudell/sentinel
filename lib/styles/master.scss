@@ -3,8 +3,31 @@ body {
   font-family: 'Muli', sans-serif;
 }
 
-.fa-spinner {
-  font-size: 24px;
-  color: teal;
+#title {
+  text-align: center;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .fa-spinner {
+    font-size: 100px;
+    color: teal;
+    display: none;
+  }
+}
+
+
+.hidden {
   display: none;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid black;
+  padding: 10px;
 }
