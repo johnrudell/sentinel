@@ -12,27 +12,47 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.4.3/tabletop.js"></script> -->
-    <!-- <script src="https://d3js.org/d3-selection-multi.v0.4.min.js"></script>
-    <script src='https://npmcdn.com/babel-core@5.8.34/browser.min.js'></script>
-    <script lang='babel' type='text/babel'></script> -->
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js'></script>
     <script src="./bundle.js"></script>
   </head>
   <body>
-    <header id="title">
-      <h1>
-        Sentinel
-        <i class="fa fa-superpowers" aria-hidden="true"></i>
-      </h1>
-    </header>
-    <main id="root">
+    <main class="content">
+      <header class="title">
+        <h1>Sentinel <i class="fa fa-superpowers" aria-hidden="true"></i>
+        </h1>
+      </header>
+      <div class="top">
+        <section id="line"></section>
+      </div>
+      <div class="bottom">
+        <div class="description">
+          <p>Sentinel tracks the shares of Genus Holding Co. by visualizing their respective share amount, share value, and total account value.</p>
+          <p>The eventual goal is to have account holders log in and see their specific standing within the holding company.</p>
+        </div>
+        <section id="pie"></section>
+      </div>
       <div class="loading">
         <i class="fa fa-spinner fa-spin"></i>
       </div>
-
     </main>
+
+    <footer>
+      <ul class="footer-links">
+        <li>
+          <a href="https://www.linkedin.com/in/johnrudell/"><i class="fa fa-linkedin fa-fw fa-2x"></i></a>
+        </li>
+        <li>
+          <a href="https://github.com/johnrudell"><i class="fa fa-github fa-fw fa-2x"></i></a>
+        </li>
+        <li>
+          <a href="https://angel.co/johnrudell"><i class="fa fa-angellist fa-fw fa-2x" aria-hidden="true"></i></a>
+        </li>
+        <li>
+          <a href="http://johnrudell.com/"><i class="fa fa-user-circle fa-fw fa-2x" aria-hidden="true"></i></a>
+        </li>
+      </ul>
+      <p>Copyright &copy; John Rudell 2018</p>
+    </footer>
   </body>
 </html>

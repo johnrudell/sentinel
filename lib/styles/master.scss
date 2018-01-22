@@ -11,24 +11,41 @@ $color-black: rgba(24, 31, 28, 1);
 $color-persian: rgba(23, 163, 152, 1);
 $color-indigo: rgba(37, 66, 62, 1);
 
+html, body {
+  height: 100%;
+}
+
 body {
   // background: pink;
   font-family: 'Muli', sans-serif;
-  background-color: $color-indigo;
+  background-color: $color-mint;
   color: $color-black;
+  display: flex;
+  flex-direction: column;
 }
 
-#title {
+.content {
+  flex: 1 0 auto;
+}
+
+.title {
   text-align: center;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: $color-mint;
+  color: $color-indigo;
 }
+
+// #root {
+//   display: flex;
+//   justify-content: space-between;
+// }
 
 .loading {
   display: flex;
+  align-self: center;
   justify-content: center;
   align-items: center;
+  padding-bottom: 20px;
   .fa-spinner {
     font-size: 100px;
     color: teal;
@@ -36,7 +53,118 @@ body {
   }
 }
 
-.sharetracking {
+.top {
+  #line {
+    display: flex;
+    justify-content: center;
+    // width: 100%;
+  }
+}
+
+.bottom {
+  margin-top: 20px;
+  display: flex;
+  .description {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    flex-direction: column;
+    flex: 1;
+    p {
+      width: 50%;
+    }
+  }
+  #pie {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    // height: 360px;
+    // margin: 0 auto;
+    position: relative;
+    // width: 360px;
+  }
+}
+
+
+
+.sharetracking, .distributions {
+  overflow: visible;
   background-color: $color-mint;
-  border: 1px solid black;
+  // border: 1px solid $color-black;
+}
+
+
+// Sharetracking
+.share-value, .shares, .total-acct-val {
+  // fill: lightgrey;
+}
+
+// Distributions
+.distributions {
+  padding: 40px;
+  margin-left: 20px;
+}
+
+
+.legend {
+  font-size: 13px;
+  &:last-child {
+    display: none;
+  }
+}
+
+rect {
+  stroke-width: 2;
+}
+
+.tooltip {
+  box-shadow: 0 0 5px #999999;
+  display: none;
+  font-size: 12px;
+  // right: 130px;
+  padding: 10px;
+  position: absolute;
+  text-align: center;
+  top: 95px;
+  width: 80px;
+  z-index: 10;
+  line-height: 140%;
+  font-weight: 300;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+.label {
+ font-weight: 600;
+}
+
+footer {
+  font-size: 12px;
+  background-color: $color-mint;;
+  color: $color-black;
+  padding-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  // border: 1px solid $color-black;
+  .footer-links {
+    display: flex;
+    list-style: none;
+    padding: 12px 0;
+    li {
+      display: flex;
+      justify-content: space-between;
+      a {
+        color: $color-indigo;
+      }
+      a:hover{
+        color: $color-midnight;
+      }
+    }
+  }
+  p {
+    padding-bottom: 15px;
+  }
 }
