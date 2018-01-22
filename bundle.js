@@ -94,7 +94,7 @@ exports.init = undefined;
 
 var _share_tracking = __webpack_require__(2);
 
-var _distributions = __webpack_require__(5);
+var _distributions = __webpack_require__(3);
 
 var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
 
@@ -263,9 +263,7 @@ var drawShares = exports.drawShares = function drawShares(data) {
 };
 
 /***/ }),
-/* 3 */,
-/* 4 */,
-/* 5 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
