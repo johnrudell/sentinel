@@ -72,13 +72,7 @@
 
 var _data = __webpack_require__(1);
 
-window.addEventListener('DOMContentLoaded', _data.init);
-
-// $(document).ready(function(){
-//
-//
-//
-// });
+window.addEventListener('DOMContentLoaded', _data.render);
 
 /***/ }),
 /* 1 */
@@ -90,7 +84,7 @@ window.addEventListener('DOMContentLoaded', _data.init);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.init = undefined;
+exports.render = undefined;
 
 var _share_tracking = __webpack_require__(2);
 
@@ -98,7 +92,7 @@ var _distributions = __webpack_require__(3);
 
 var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
 
-var init = exports.init = function init() {
+var render = exports.render = function render() {
   loading();
   Tabletop.init({
     key: publicSpreadsheetUrl,
@@ -172,11 +166,9 @@ var drawShares = exports.drawShares = function drawShares(data) {
   y0.domain(d3.extent(data, function (d) {
     return d["SHARE VALUE"];
   }));
-  y1.domain(d3.extent(data, function (d) {
-    return d["SHARES"];
-  }));
+  // y1.domain(d3.extent(data, d => d["SHARES"]));
 
-  svg.append('g').attr('class', 'x axis axis--x').attr('transform', "translate(0, " + height + ")").call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %d, %y")));
+  svg.append('g').attr('class', 'x axis axis--x').attr('transform', "translate(0, " + height + ")").call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %Y")));
 
   // y axis
 
@@ -247,7 +239,8 @@ var drawShares = exports.drawShares = function drawShares(data) {
   d3.selectAll('.focus line').style('fill', 'none').style('stroke', 'black').style('stroke-width', '1.5px').style('stroke-dasharray', '3 3');
 
   // Remove stroke right on Share Value line
-  d3.selectAll('.focus .y').style('stroke-width', '0px');
+  d3.selectAll('.focus .y');
+  // .style('stroke-width', '0px');
 
   function mousemove0() {
     var x0 = x.invert(d3.mouse(this)[0]);
@@ -261,8 +254,8 @@ var drawShares = exports.drawShares = function drawShares(data) {
     focus.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y0(d["SHARE VALUE"]));
 
     focus.select('.share-value').text("share value: " + d["SHARE VALUE"]);
-    // focus.select('.shares').text(`shares: ${d["SHARES"]}`);
-    // focus.select('.total-acct-val').text(`total account value: $${d["TOTAL ACCOUNT VALUE"]}`);
+    focus.select('.shares').text("shares: " + d["SHARES"]);
+    focus.select('.total-acct-val').text("total account value: $" + d["TOTAL ACCOUNT VALUE"]);
   }
 
   function mousemove1() {
@@ -319,7 +312,12 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   //     "#7E4E60"
   //   ]);
 
-  var svg = d3.select('#pie').append('svg').attr('width', width).attr('height', height).append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+  var svg = d3.select('#pie').append('svg')
+  // .attr('width', "75%")
+  // .attr('height', "75%")
+  // .attr("preserveAspectRatio", "xMinYMin meet")
+  // .attr("viewBox", "0 0 360 360")
+  .attr('width', width).attr('height', height).append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
 
   var donutWidth = 75;
 
