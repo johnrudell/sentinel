@@ -72,13 +72,7 @@
 
 var _data = __webpack_require__(1);
 
-window.addEventListener('DOMContentLoaded', _data.init);
-
-// $(document).ready(function(){
-//
-//
-//
-// });
+window.addEventListener('DOMContentLoaded', _data.render);
 
 /***/ }),
 /* 1 */
@@ -90,7 +84,7 @@ window.addEventListener('DOMContentLoaded', _data.init);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.init = undefined;
+exports.render = undefined;
 
 var _share_tracking = __webpack_require__(2);
 
@@ -98,10 +92,7 @@ var _distributions = __webpack_require__(3);
 
 var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
 
-// https://docs.google.com/spreadsheets/d/1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU/edit?usp=sharing
-
-
-var init = exports.init = function init() {
+var render = exports.render = function render() {
   loading();
   Tabletop.init({
     key: publicSpreadsheetUrl,
@@ -117,12 +108,7 @@ var draw = function draw(data, tabletop) {
   var distributions = tabletop.sheets("John Copy of InterestPurchases").elements;
 
   (0, _share_tracking.drawShares)(shareTracking);
-
-  // const displayData = [];
-  // for (let i = 0; i < shareTracking.length; i++) {
-  //   displayData.push(shareTracking[i]);
-  //   // displayData.push(data[i]["TOTAL ACCOUNT VALUE"]);
-  // }
+  (0, _distributions.drawDistributions)(distributions);
 };
 
 var loading = function loading() {
@@ -145,41 +131,44 @@ var drawShares = exports.drawShares = function drawShares(data) {
   var width = 960 - margin.left - margin.right;
   var height = 500 - margin.top - margin.bottom;
 
-  var parseTime = d3.timeParse('%d-%b-%y');
+  var parseTime = d3.timeParse("%m/%d/%Y");
   var bisectDate = d3.bisector(function (d) {
     return d.DATE;
   }).left;
-  // const formatValue = d3.format(',.2f');
-  // const formatCurrency = d => `$${formatValue(d)}`;
-  // debugger
-  // d3.select('body')
-  //   .style('font', '10px sans-serif')
 
   data.forEach(function (d) {
     d.DATE = parseTime(d.DATE);
     d["SHARE VALUE"] = +d["SHARE VALUE"];
+    d["SHARES"] = +d["SHARES"];
   });
 
-  var x = d3.scaleLinear().range([0, width]);
+  var x = d3.scaleTime().range([0, width]);
 
-  var y = d3.scaleLinear().range([height, 0]);
+  var y0 = d3.scaleLinear().range([height, 0]);
 
-  var line = d3.line().x(function (d) {
-    // debugger
+  var y1 = d3.scaleLinear().range([height, 0]);
+
+  var lineShareValue = d3.line().x(function (d) {
     return x(d.DATE);
   }).y(function (d) {
-    // debugger
-    return y(d["SHARE VALUE"]);
-  });
+    return y0(d["SHARE VALUE"]);
+  }).curve(d3.curveMonotoneX);
 
-  var svg = d3.select('body').append('svg').classed('sharetracking', true).attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
+  var lineShareNumber = d3.line().x(function (d) {
+    return x(d.DATE);
+  }).y(function (d) {
+    return y1(d["SHARES"]);
+  }).curve(d3.curveMonotoneX);
+
+  var svg = d3.select('#line').append('svg').classed('sharetracking', true).attr('width', "75%").attr('height', "75%").attr("preserveAspectRatio", "xMinYMin meet").attr("viewBox", "0 0 960 500").append('g').attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
 
   x.domain([data[0].DATE, data[data.length - 1].DATE]);
-  y.domain(d3.extent(data, function (d) {
+  y0.domain(d3.extent(data, function (d) {
     return d["SHARE VALUE"];
   }));
+  // y1.domain(d3.extent(data, d => d["SHARES"]));
 
-  svg.append('g').attr('class', 'x axis axis--x').attr('transform', "translate(0, " + height + ")").call(d3.axisBottom(x));
+  svg.append('g').attr('class', 'x axis axis--x').attr('transform', "translate(0, " + height + ")").call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %Y")));
 
   // y axis
 
@@ -193,27 +182,17 @@ var drawShares = exports.drawShares = function drawShares(data) {
   //     .attr('dy', '.71em')
   //     .style('text-anchor', 'end');
 
-  // .text('Price ($)');
-
   // style the axes
   d3.selectAll('.axis path').style('fill', 'none').style('stroke', '#000').style('shape-rendering', 'crispEdges');
-  // .styles({
-  //   fill: 'none',
-  //   stroke: '#000',
-  //   'shape-rendering': 'crispEdges'
-  // });
 
   d3.selectAll('.axis line').style('fill', 'none').style('stroke', '#000').style('shape-rendering', 'crispEdges');
-  // .styles({
-  //   fill: 'none',
-  //   stroke: '#000',
-  //   'shape-rendering': 'crispEdges'
-  // });
 
   // d3.selectAll('.axis--x path')
   //   .style('display', 'none');
 
-  svg.append('path').datum(data).attr('class', 'line').attr('d', line);
+  svg.append('path').datum(data).attr('class', 'line0').attr('d', lineShareValue);
+
+  svg.append('path').datum(data).attr('class', 'line1').style('stroke', 'purple').attr('d', lineShareNumber);
 
   var focus = svg.append('g').attr('class', 'focus').style('display', 'none');
 
@@ -223,21 +202,35 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   focus.append('line').classed('y', true);
 
-  focus.append('text').classed('share-value', true).attr('x', 9).attr('dy', '.35em');
+  focus.append('text').classed('share-value', true).attr("transform", "translate(-200, -15)")
+  // .attr('x', 9)
+  .attr('dy', '.35em');
 
   focus.append('text').classed('shares', true).attr('x', 9).attr('y', 16).attr('dy', '.35em');
 
   focus.append('text').classed('total-acct-val', true).attr('x', 9).attr('y', 33).attr('dy', '.35em');
 
-  svg.append('rect').attr('class', 'overlay').attr('width', width).attr('height', height).on('mouseover', function () {
+  svg.append('rect').attr('class', 'overlay0').attr('width', width).attr('height', height).on('mouseover', function () {
     return focus.style('display', null);
   }).on('mouseout', function () {
     return focus.style('display', 'none');
-  }).on('mousemove', mousemove);
+  }).on('mousemove', mousemove0);
 
-  d3.selectAll('.line').style('fill', 'none').style('stroke', 'rgba(24, 31, 28, 1)').style('stroke-width', '1.5px');
+  // svg.append('rect')
+  //   .attr('class', 'overlay1')
+  //   .attr('width', width)
+  //   .attr('height', height)
+  //   .on('mouseover', () => focus.style('display', null))
+  //   .on('mouseout', () => focus.style('display', 'none'))
+  //   .on('mousemove', mousemove1);
 
-  d3.select('.overlay').style('fill', 'none').style('pointer-events', 'all');
+  d3.select('.line0').style('fill', 'none').style('stroke', 'white').style('stroke-width', '1.5px');
+
+  d3.select('.line1').style('fill', 'none').style('stroke', 'purple').style('stroke-width', '1.5px');
+
+  d3.selectAll('.overlay0').style('fill', 'none').style('pointer-events', 'all');
+
+  d3.selectAll('.overlay1').style('fill', 'none').style('pointer-events', 'all');
 
   d3.selectAll('.focus').style('opacity', 0.7);
 
@@ -245,20 +238,40 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   d3.selectAll('.focus line').style('fill', 'none').style('stroke', 'black').style('stroke-width', '1.5px').style('stroke-dasharray', '3 3');
 
-  function mousemove() {
+  // Remove stroke right on Share Value line
+  d3.selectAll('.focus .y');
+  // .style('stroke-width', '0px');
+
+  function mousemove0() {
     var x0 = x.invert(d3.mouse(this)[0]);
     var i = bisectDate(data, x0, 1);
     var d0 = data[i - 1];
     var d1 = data[i];
     var d = x0 - d0.DATE > d1.DATE - x0 ? d1 : d0;
-    focus.attr('transform', "translate(" + x(d.DATE) + ", " + y(d["SHARE VALUE"]) + ")");
+    focus.attr('transform', "translate(" + x(d.DATE) + ", " + y0(d["SHARE VALUE"]) + ")");
     focus.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
 
-    focus.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y(d["SHARE VALUE"]));
+    focus.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y0(d["SHARE VALUE"]));
 
     focus.select('.share-value').text("share value: " + d["SHARE VALUE"]);
     focus.select('.shares').text("shares: " + d["SHARES"]);
     focus.select('.total-acct-val').text("total account value: $" + d["TOTAL ACCOUNT VALUE"]);
+  }
+
+  function mousemove1() {
+    var x0 = x.invert(d3.mouse(this)[0]);
+    var i = bisectDate(data, x0, 1);
+    var d0 = data[i - 1];
+    var d1 = data[i];
+    var d = x0 - d0.DATE > d1.DATE - x0 ? d1 : d0;
+    focus.attr('transform', "translate(" + x(d.DATE) + ", " + y1(d["SHARES"]) + ")");
+    focus.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
+
+    focus.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y1(d["SHARES"]));
+
+    // focus.select('.share-value').text(`share value: ${d["SHARE VALUE"]}`);
+    focus.select('.shares').text("shares: " + d["SHARES"]);
+    // focus.select('.total-acct-val').text(`total account value: $${d["TOTAL ACCOUNT VALUE"]}`);
   }
 };
 
@@ -274,46 +287,82 @@ Object.defineProperty(exports, "__esModule", {
 });
 var drawDistributions = exports.drawDistributions = function drawDistributions(data) {
 
-  // var svg = d3.select("svg"),
-  //   width = +svg.attr("width"),
-  //   height = +svg.attr("height"),
-  //   radius = Math.min(width, height) / 2,
-  //   g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-  //
-  // var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-  //
-  // var pie = d3.pie()
-  //     .sort(null)
-  //     .value(function(d) { return d.population; });
-  //
-  // var path = d3.arc()
-  //     .outerRadius(radius - 10)
-  //     .innerRadius(0);
-  //
-  // var label = d3.arc()
-  //     .outerRadius(radius - 40)
-  //     .innerRadius(radius - 40);
-  //
-  // d3.csv("data.csv", function(d) {
-  //   d.population = +d.population;
-  //   return d;
-  // }, function(error, data) {
-  //   if (error) throw error;
-  //
-  //   var arc = g.selectAll(".arc")
-  //     .data(pie(data))
-  //     .enter().append("g")
-  //       .attr("class", "arc");
-  //
-  //   arc.append("path")
-  //       .attr("d", path)
-  //       .attr("fill", function(d) { return color(d.data.age); });
-  //
-  //   arc.append("text")
-  //       .attr("transform", function(d) { return "translate(" + label.centroid(d) + ")"; })
-  //       .attr("dy", "0.35em")
-  //       .text(function(d) { return d.data.age; });
-  // });
+  var tooltip = d3.select('#pie').append('div').attr('class', 'tooltip');
+
+  tooltip.append('div').attr('class', 'label');
+
+  tooltip.append('div').attr('class', 'count');
+
+  tooltip.append('div').attr('class', 'percent');
+
+  var width = 360;
+  var height = 360;
+  var radius = Math.min(width, height) / 2;
+
+  var color = d3.scaleOrdinal(d3.schemeCategory20c);
+
+  // const color = d3.scaleOrdinal()
+  //   .range([
+  //     "#2C93E8",
+  //     "#838690",
+  //     "#F56C4E",
+  //     "#C2E812",
+  //     "#EFC7C2",
+  //     "#7A5C61",
+  //     "#7E4E60"
+  //   ]);
+
+  var svg = d3.select('#pie').append('svg')
+  // .attr('width', "75%")
+  // .attr('height', "75%")
+  // .attr("preserveAspectRatio", "xMinYMin meet")
+  // .attr("viewBox", "0 0 360 360")
+  .attr('width', width).attr('height', height).append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+  var donutWidth = 75;
+
+  var arc = d3.arc().innerRadius(radius - donutWidth).outerRadius(radius);
+
+  var pie = d3.pie().value(function (d) {
+    return d["#Shares"];
+  }).sort(null);
+
+  var legendRectSize = 18;
+  var legendSpacing = 4;
+
+  var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).attr('fill', function (d, i) {
+    return color(d.data["Name"]);
+  });
+
+  path.on('mouseover', function (d) {
+    var total = d3.sum(data.map(function (d) {
+      return d["#Shares"];
+    }));
+
+    var percent = Math.round(1000 * d.data["#Shares"] / total) / 10;
+    tooltip.select('.label').html(d.data["Name"]);
+    tooltip.select('.count').html(d.data["#Shares"] + ' shares');
+    tooltip.select('.percent').html(percent + '%');
+    tooltip.style('display', 'block');
+  });
+
+  path.on('mouseout', function () {
+    tooltip.style('display', 'none');
+  });
+
+  var legend = svg.selectAll('.legend').data(color.domain()).enter().append('g').attr('class', 'legend').attr('transform', function (d, i) {
+    var height = legendRectSize + legendSpacing;
+    var offset = height * color.domain().length / 2;
+    var horz = -2 * legendRectSize;
+    var vert = i * height - offset;
+    return 'translate(' + horz + ',' + vert + ')';
+  });
+
+  legend.append('rect').attr('width', legendRectSize).attr('height', legendRectSize).style('fill', color).style('stroke', color);
+
+  legend.append('text').attr('x', legendRectSize + legendSpacing).attr('y', legendRectSize - legendSpacing).text(function (d) {
+    return d;
+  });
 };
 
 /***/ })

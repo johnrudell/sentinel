@@ -1,26 +1,110 @@
-/* RGB */
+html, body {
+  height: 100%; }
+
 body {
   font-family: 'Muli', sans-serif;
-  background-color: #25423e;
-  color: #181f1c; }
+  background-color: #4fb286;
+  color: #181f1c;
+  display: flex;
+  flex-direction: column; }
 
-#title {
+.content {
+  flex: 1 0 auto; }
+
+.title {
   text-align: center;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #4fb286; }
+  color: #25423e; }
 
 .loading {
   display: flex;
+  align-self: center;
   justify-content: center;
-  align-items: center; }
+  align-items: center;
+  padding-bottom: 20px; }
   .loading .fa-spinner {
     font-size: 100px;
     color: teal;
     display: none; }
 
-.sharetracking {
+.top #line {
+  display: flex;
+  justify-content: center; }
+
+.bottom {
+  margin-top: 20px;
+  display: flex; }
+  .bottom .description {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    flex-direction: column;
+    flex: 1; }
+    .bottom .description p {
+      width: 50%; }
+  .bottom #pie {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    position: relative; }
+
+.sharetracking, .distributions {
+  overflow: visible;
+  background-color: #4fb286; }
+
+.distributions {
+  padding: 40px;
+  margin-left: 20px; }
+
+.legend {
+  font-size: 13px; }
+  .legend:last-child {
+    display: none; }
+
+rect {
+  stroke-width: 2; }
+
+.tooltip {
+  box-shadow: 0 0 5px #999999;
+  display: none;
+  font-size: 12px;
+  padding: 10px;
+  position: absolute;
+  text-align: center;
+  top: 95px;
+  width: 80px;
+  z-index: 10;
+  line-height: 140%;
+  font-weight: 300;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px; }
+
+.label {
+  font-weight: 600; }
+
+footer {
+  font-size: 12px;
   background-color: #4fb286;
-  border: 1px solid black; }
+  color: #181f1c;
+  padding-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; }
+  footer .footer-links {
+    display: flex;
+    list-style: none;
+    padding: 12px 0; }
+    footer .footer-links li {
+      display: flex;
+      justify-content: space-between; }
+      footer .footer-links li a {
+        color: #25423e; }
+      footer .footer-links li a:hover {
+        color: #095256; }
+  footer p {
+    padding-bottom: 15px; }
 
 /*# sourceMappingURL=master.css.map */
