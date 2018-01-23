@@ -88,7 +88,7 @@ exports.render = undefined;
 
 var _share_tracking = __webpack_require__(2);
 
-var _distributions = __webpack_require__(3);
+var _distributions = __webpack_require__(4);
 
 var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
 
@@ -166,7 +166,9 @@ var drawShares = exports.drawShares = function drawShares(data) {
   y0.domain(d3.extent(data, function (d) {
     return d["SHARE VALUE"];
   }));
-  // y1.domain(d3.extent(data, d => d["SHARES"]));
+  y1.domain(d3.extent(data, function (d) {
+    return d["SHARES"];
+  }));
 
   svg.append('g').attr('class', 'x axis axis--x').attr('transform', "translate(0, " + height + ")").call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %Y")));
 
@@ -210,14 +212,35 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   focus.append('text').classed('total-acct-val', true).attr('x', 9).attr('y', 33).attr('dy', '.35em');
 
+  var focus1 = svg.append('g').attr('class', 'focus').style('display', 'none');
+
+  focus1.append('circle').attr('r', 4.5);
+
+  focus1.append('line').classed('x', true);
+
+  focus1.append('line').classed('y', true);
+
+  focus1.append('text').classed('share-value', true).attr("transform", "translate(-200, -15)")
+  // .attr('x', 9)
+  .attr('dy', '.35em');
+
+  focus1.append('text').classed('shares', true).attr('x', 9).attr('y', 16).attr('dy', '.35em');
+
+  focus1.append('text').classed('total-acct-val', true).attr('x', 9).attr('y', 33).attr('dy', '.35em');
+
   svg.append('rect').attr('class', 'overlay0').attr('width', width).attr('height', height).on('mouseover', function () {
-    return focus.style('display', null);
+    focus.style('display', null);
+    focus1.style('display', null);
   }).on('mouseout', function () {
-    return focus.style('display', 'none');
-  }).on('mousemove', mousemove0);
+    focus.style('display', 'none');
+    focus1.style('display', 'none');
+  })
+  // .on('mouseover', () => focus1.style('display', null))
+  // .on('mouseout', () => focus1.style('display', 'none'))
+  .on('mousemove', mousemove);
 
   // svg.append('rect')
-  //   .attr('class', 'overlay1')
+  //   .attr('class', 'overlay0')
   //   .attr('width', width)
   //   .attr('height', height)
   //   .on('mouseover', () => focus.style('display', null))
@@ -242,7 +265,7 @@ var drawShares = exports.drawShares = function drawShares(data) {
   d3.selectAll('.focus .y');
   // .style('stroke-width', '0px');
 
-  function mousemove0() {
+  function mousemove() {
     var x0 = x.invert(d3.mouse(this)[0]);
     var i = bisectDate(data, x0, 1);
     var d0 = data[i - 1];
@@ -254,29 +277,19 @@ var drawShares = exports.drawShares = function drawShares(data) {
     focus.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y0(d["SHARE VALUE"]));
 
     focus.select('.share-value').text("share value: " + d["SHARE VALUE"]);
-    focus.select('.shares').text("shares: " + d["SHARES"]);
-    focus.select('.total-acct-val').text("total account value: $" + d["TOTAL ACCOUNT VALUE"]);
-  }
 
-  function mousemove1() {
-    var x0 = x.invert(d3.mouse(this)[0]);
-    var i = bisectDate(data, x0, 1);
-    var d0 = data[i - 1];
-    var d1 = data[i];
-    var d = x0 - d0.DATE > d1.DATE - x0 ? d1 : d0;
-    focus.attr('transform', "translate(" + x(d.DATE) + ", " + y1(d["SHARES"]) + ")");
-    focus.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
+    focus1.attr('transform', "translate(" + x(d.DATE) + ", " + y1(d["SHARES"]) + ")");
+    focus1.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
 
-    focus.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y1(d["SHARES"]));
+    focus1.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y1(d["SHARES"]));
 
-    // focus.select('.share-value').text(`share value: ${d["SHARE VALUE"]}`);
-    focus.select('.shares').text("shares: " + d["SHARES"]);
-    // focus.select('.total-acct-val').text(`total account value: $${d["TOTAL ACCOUNT VALUE"]}`);
+    focus1.select('.shares').text("shares: " + d["SHARES"]);
   }
 };
 
 /***/ }),
-/* 3 */
+/* 3 */,
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

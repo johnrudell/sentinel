@@ -50,8 +50,7 @@ body {
     position: relative; }
 
 .sharetracking, .distributions {
-  overflow: visible;
-  background-color: #4fb286; }
+  overflow: visible; }
 
 .distributions {
   padding: 40px;

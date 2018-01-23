@@ -71,7 +71,7 @@ body {
 
 .sharetracking, .distributions {
   overflow: visible;
-  background-color: $color-mint;
+  // background-color: $color-mint;
 }
 
 
@@ -149,3 +149,35 @@ footer {
     padding-bottom: 15px;
   }
 }
+
+//testing
+// body {
+//   font: 10px sans-serif;
+// }
+//
+// .axis path,
+// .axis line {
+//   fill: none;
+//   stroke: #000;
+//   shape-rendering: crispEdges;
+// }
+//
+// .x.axis path {
+//   display: none;
+// }
+//
+// .line {
+//   fill: none;
+//   stroke: white;
+//   stroke-width: 1.5px;
+// }
+//
+// .overlay {
+//   fill: none;
+//   pointer-events: all;
+// }
+//
+// .focus circle {
+//   fill: none;
+//   stroke: steelblue;
+// }
