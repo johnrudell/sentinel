@@ -1,4 +1,5 @@
 <h1>Sentinel</h1>
+<h3><a href="http://johnrudell.com/sentinel/">DEMO</a></h3>
 <h2>MVP</h2>
 <p>Sentinel is an investment portfolio watching app, utilizing D3.js to visualize data pulled from Google Spreadsheets.</p>
 <ul>
