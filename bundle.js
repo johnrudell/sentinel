@@ -194,25 +194,25 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   svg.append('path').datum(data).attr('class', 'line0').attr('d', lineShareValue);
 
-  svg.append('path').datum(data).attr('class', 'line1').style('stroke', 'purple').attr('d', lineShareNumber);
+  svg.append('path').datum(data).attr('class', 'line1').style('stroke', 'none').attr('d', lineShareNumber);
 
-  var focus = svg.append('g').attr('class', 'focus').style('display', 'none');
+  var focus0 = svg.append('g').attr('class', 'focus focus0').style('display', 'none');
 
-  focus.append('circle').attr('r', 4.5);
+  focus0.append('circle').attr('r', 4.5);
 
-  focus.append('line').classed('x', true);
+  focus0.append('line').classed('x', true);
 
-  focus.append('line').classed('y', true);
+  focus0.append('line').classed('y', true);
 
-  focus.append('text').classed('share-value', true).attr("transform", "translate(-200, -15)")
+  focus0.append('text').classed('share-value', true).attr("transform", "translate(-200, -15)")
   // .attr('x', 9)
   .attr('dy', '.35em');
 
-  focus.append('text').classed('shares', true).attr('x', 9).attr('y', 16).attr('dy', '.35em');
+  focus0.append('text').classed('shares', true).attr('x', 9).attr('y', 16).attr('dy', '.35em');
 
-  focus.append('text').classed('total-acct-val', true).attr('x', 9).attr('y', 33).attr('dy', '.35em');
+  focus0.append('text').classed('total-acct-val', true).attr('x', 9).attr('y', 33).attr('dy', '.35em');
 
-  var focus1 = svg.append('g').attr('class', 'focus').style('display', 'none');
+  var focus1 = svg.append('g').attr('class', 'focus focus1').style('display', 'none');
 
   focus1.append('circle').attr('r', 4.5);
 
@@ -220,24 +220,19 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   focus1.append('line').classed('y', true);
 
-  focus1.append('text').classed('share-value', true).attr("transform", "translate(-200, -15)")
-  // .attr('x', 9)
-  .attr('dy', '.35em');
+  focus1.append('text').classed('share-value', true).attr("transform", "translate(-225, -15)").attr('dy', '.35em');
 
-  focus1.append('text').classed('shares', true).attr('x', 9).attr('y', 16).attr('dy', '.35em');
+  focus1.append('text').classed('shares', true).attr("transform", "translate(0, 15)rotate(90)").attr('dy', '.35em');
 
-  focus1.append('text').classed('total-acct-val', true).attr('x', 9).attr('y', 33).attr('dy', '.35em');
+  focus1.append('text').classed('total-acct-val', true).attr("transform", "translate(15, -15)").attr('dy', '.35em');
 
-  svg.append('rect').attr('class', 'overlay0').attr('width', width).attr('height', height).on('mouseover', function () {
-    focus.style('display', null);
+  svg.append('rect').attr('class', 'overlay').attr('width', width).attr('height', height).on('mouseover', function () {
+    focus0.style('display', null);
     focus1.style('display', null);
   }).on('mouseout', function () {
-    focus.style('display', 'none');
+    focus0.style('display', 'none');
     focus1.style('display', 'none');
-  })
-  // .on('mouseover', () => focus1.style('display', null))
-  // .on('mouseout', () => focus1.style('display', 'none'))
-  .on('mousemove', mousemove);
+  }).on('mousemove', mousemove);
 
   // svg.append('rect')
   //   .attr('class', 'overlay0')
@@ -249,21 +244,25 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   d3.select('.line0').style('fill', 'none').style('stroke', 'white').style('stroke-width', '1.5px');
 
-  d3.select('.line1').style('fill', 'none').style('stroke', 'purple').style('stroke-width', '1.5px');
+  d3.select('.line1').style('fill', 'none').style('stroke-width', '1.5px');
 
-  d3.selectAll('.overlay0').style('fill', 'none').style('pointer-events', 'all');
+  d3.selectAll('.overlay').style('fill', 'none').style('pointer-events', 'all');
 
   d3.selectAll('.overlay1').style('fill', 'none').style('pointer-events', 'all');
 
   d3.selectAll('.focus').style('opacity', 0.7);
 
-  d3.selectAll('.focus circle').style('fill', 'none').style('stroke', 'black');
+  d3.selectAll('.focus circle').style('fill', 'black').style('stroke', 'black');
 
-  d3.selectAll('.focus line').style('fill', 'none').style('stroke', 'black').style('stroke-width', '1.5px').style('stroke-dasharray', '3 3');
+  d3.selectAll('.focus1 circle').style('fill', 'none').style('stroke', 'none');
 
-  // Remove stroke right on Share Value line
-  d3.selectAll('.focus .y');
-  // .style('stroke-width', '0px');
+  d3.selectAll('.focus0 line.x').style('fill', 'none').style('stroke', 'lightgrey').style('stroke-width', '1.5px').style('stroke-dasharray', '3 3');
+
+  d3.selectAll('.focus0 line.y').style('stroke', 'none');
+
+  d3.selectAll('.focus1 line.x').attr("transform", "translate(-12.5, 0)rotate(180)").style('stroke', 'rgba(37, 66, 62, 1)').style('stroke-dasharray', '3 3');
+
+  d3.selectAll('.focus1 line.y').style('stroke', 'rgba(37, 66, 62, 0.5)').style('stroke-width', '25px').style('stroke-dasharray', '0');
 
   function mousemove() {
     var x0 = x.invert(d3.mouse(this)[0]);
@@ -271,19 +270,20 @@ var drawShares = exports.drawShares = function drawShares(data) {
     var d0 = data[i - 1];
     var d1 = data[i];
     var d = x0 - d0.DATE > d1.DATE - x0 ? d1 : d0;
-    focus.attr('transform', "translate(" + x(d.DATE) + ", " + y0(d["SHARE VALUE"]) + ")");
-    focus.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
+    focus0.attr('transform', "translate(" + x(d.DATE) + ", " + y0(d["SHARE VALUE"]) + ")");
+    focus0.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
 
-    focus.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y0(d["SHARE VALUE"]));
+    focus0.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y0(d["SHARE VALUE"]));
 
-    focus.select('.share-value').text("share value: " + d["SHARE VALUE"]);
+    focus0.select('.share-value').text("share value: $" + d["SHARE VALUE"]);
 
     focus1.attr('transform', "translate(" + x(d.DATE) + ", " + y1(d["SHARES"]) + ")");
     focus1.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
 
     focus1.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y1(d["SHARES"]));
 
-    focus1.select('.shares').text("shares: " + d["SHARES"]);
+    focus1.select('.shares').text(d["SHARES"] + " shares");
+    focus1.select('.total-acct-val').text("total account value: $" + d["SHARES"]);
   }
 };
 

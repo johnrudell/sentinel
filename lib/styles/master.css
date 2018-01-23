@@ -52,6 +52,9 @@ body {
 .sharetracking, .distributions {
   overflow: visible; }
 
+.focus1 line.x {
+  stroke: pink; }
+
 .distributions {
   padding: 40px;
   margin-left: 20px; }

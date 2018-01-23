@@ -80,6 +80,18 @@ body {
   // fill: lightgrey;
 }
 
+
+// Foci
+.focus0 {
+
+}
+
+.focus1 {
+  line.x {
+    stroke: pink;
+  }
+}
+
 // Distributions
 .distributions {
   padding: 40px;
@@ -149,35 +161,3 @@ footer {
     padding-bottom: 15px;
   }
 }
-
-//testing
-// body {
-//   font: 10px sans-serif;
-// }
-//
-// .axis path,
-// .axis line {
-//   fill: none;
-//   stroke: #000;
-//   shape-rendering: crispEdges;
-// }
-//
-// .x.axis path {
-//   display: none;
-// }
-//
-// .line {
-//   fill: none;
-//   stroke: white;
-//   stroke-width: 1.5px;
-// }
-//
-// .overlay {
-//   fill: none;
-//   pointer-events: all;
-// }
-//
-// .focus circle {
-//   fill: none;
-//   stroke: steelblue;
-// }
