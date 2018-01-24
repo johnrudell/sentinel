@@ -345,21 +345,19 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
 
   var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).attr('fill', function (d, i) {
     return color(d.data["Name"]);
-  });
-
-  path.on('mouseover', function (d) {
+  }).on('mouseover', function (d) {
     var total = d3.sum(data.map(function (d) {
       return d["#Shares"];
     }));
+    d3.select(this).style('opacity', '0.7');
 
     var percent = Math.round(1000 * d.data["#Shares"] / total) / 10;
     tooltip.select('.label').html(d.data["Name"]);
     tooltip.select('.count').html(d.data["#Shares"] + ' shares');
     tooltip.select('.percent').html(percent + '%');
     tooltip.style('display', 'block');
-  });
-
-  path.on('mouseout', function () {
+  }).on('mouseout', function () {
+    d3.select(this).style('opacity', '1');
     tooltip.style('display', 'none');
   });
 
