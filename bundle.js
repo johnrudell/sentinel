@@ -88,7 +88,7 @@ exports.render = undefined;
 
 var _share_tracking = __webpack_require__(2);
 
-var _distributions = __webpack_require__(4);
+var _distributions = __webpack_require__(3);
 
 var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
 
@@ -103,9 +103,15 @@ var render = exports.render = function render() {
 
 var draw = function draw(data, tabletop) {
 
+  // const update = document.getElementById('update');
+  // $(update).on('click', () => {
+  //   updateData
+  // });
+
+
   $(".fa-spinner").css("display", "none");
   var shareTracking = tabletop.sheets("John Copy of ShareTracking").elements;
-  var distributions = tabletop.sheets("John Copy of InterestPurchases").elements;
+  var distributions = tabletop.sheets("TestInterestPurchases").elements;
 
   (0, _share_tracking.drawShares)(shareTracking);
   (0, _distributions.drawDistributions)(distributions);
@@ -125,6 +131,12 @@ var loading = function loading() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var x = void 0;
+var y0 = void 0;
+var y1 = void 0;
+var lineShareValue = void 0;
+var lineShareNumber = void 0;
+
 var drawShares = exports.drawShares = function drawShares(data) {
 
   var margin = { top: 20, right: 50, bottom: 30, left: 50 };
@@ -133,41 +145,41 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   var parseTime = d3.timeParse("%m/%d/%Y");
   var bisectDate = d3.bisector(function (d) {
-    return d.DATE;
+    return d.Date;
   }).left;
 
   data.forEach(function (d) {
-    d.DATE = parseTime(d.DATE);
-    d["SHARE VALUE"] = +d["SHARE VALUE"];
-    d["SHARES"] = +d["SHARES"];
+    d.Date = parseTime(d.Date);
+    d["Price"] = +d["Price"];
+    d["Shares"] = +d["Shares"];
   });
 
-  var x = d3.scaleTime().range([0, width]);
+  x = d3.scaleTime().range([0, width]);
 
-  var y0 = d3.scaleLinear().range([height, 0]);
+  y0 = d3.scaleLinear().range([height, 0]);
 
-  var y1 = d3.scaleLinear().range([height, 0]);
+  y1 = d3.scaleLinear().range([height, 0]);
 
-  var lineShareValue = d3.line().x(function (d) {
-    return x(d.DATE);
+  lineShareValue = d3.line().x(function (d) {
+    return x(d.Date);
   }).y(function (d) {
-    return y0(d["SHARE VALUE"]);
+    return y0(d["Price"]);
   }).curve(d3.curveMonotoneX);
 
-  var lineShareNumber = d3.line().x(function (d) {
-    return x(d.DATE);
+  lineShareNumber = d3.line().x(function (d) {
+    return x(d.Date);
   }).y(function (d) {
-    return y1(d["SHARES"]);
+    return y1(d["Shares"]);
   }).curve(d3.curveMonotoneX);
 
   var svg = d3.select('#line').append('svg').classed('sharetracking', true).attr('width', "75%").attr('height', "75%").attr("preserveAspectRatio", "xMinYMin meet").attr("viewBox", "0 0 960 500").append('g').attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
 
-  x.domain([data[0].DATE, data[data.length - 1].DATE]);
+  x.domain([data[0].Date, data[data.length - 1].Date]);
   y0.domain(d3.extent(data, function (d) {
-    return d["SHARE VALUE"];
+    return d["Price"];
   }));
   y1.domain(d3.extent(data, function (d) {
-    return d["SHARES"];
+    return d["Shares"];
   }));
 
   svg.append('g').attr('class', 'x axis axis--x').attr('transform', "translate(0, " + height + ")").call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %Y")));
@@ -269,27 +281,82 @@ var drawShares = exports.drawShares = function drawShares(data) {
     var i = bisectDate(data, x0, 1);
     var d0 = data[i - 1];
     var d1 = data[i];
-    var d = x0 - d0.DATE > d1.DATE - x0 ? d1 : d0;
-    focus0.attr('transform', "translate(" + x(d.DATE) + ", " + y0(d["SHARE VALUE"]) + ")");
-    focus0.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
+    var d = x0 - d0.Date > d1.Date - x0 ? d1 : d0;
+    focus0.attr('transform', "translate(" + x(d.Date) + ", " + y0(d["Price"]) + ")");
+    focus0.select('line.x').attr('x1', 0).attr('x2', -x(d.Date)).attr('y1', 0).attr('y2', 0);
 
-    focus0.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y0(d["SHARE VALUE"]));
+    focus0.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y0(d["Price"]));
 
-    focus0.select('.share-value').text("share value: $" + d["SHARE VALUE"]);
+    focus0.select('.share-value').text("share value: $" + d["Price"]);
 
-    focus1.attr('transform', "translate(" + x(d.DATE) + ", " + y1(d["SHARES"]) + ")");
-    focus1.select('line.x').attr('x1', 0).attr('x2', -x(d.DATE)).attr('y1', 0).attr('y2', 0);
+    focus1.attr('transform', "translate(" + x(d.Date) + ", " + y1(d["Shares"]) + ")");
+    focus1.select('line.x').attr('x1', 0).attr('x2', -x(d.Date)).attr('y1', 0).attr('y2', 0);
 
-    focus1.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y1(d["SHARES"]));
+    focus1.select('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height - y1(d["Shares"]));
 
-    focus1.select('.shares').text(d["SHARES"] + " shares");
-    focus1.select('.total-acct-val').text("total account value: $" + d["SHARES"]);
+    focus1.select('.shares').text(d["Shares"] + " shares");
+    focus1.select('.total-acct-val').text("total account value: $" + d["Total Account Value"]);
+
+    // If text gets too low, reposition it beyond date overlap
+    var shares = focus1.select('.shares');
+    if (height - y1(d["Shares"]) < 25) {
+      shares.attr("transform", "translate(0, 30)rotate(90)");
+    } else {
+      shares.attr("transform", "translate(0, 15)rotate(90)");
+    }
   }
 };
 
+var updateData = exports.updateData = function updateData(distData) {
+  var parseTime = d3.timeParse("%m/%d/%Y");
+  // console.log(distData)
+  // debugger
+
+  distData.forEach(function (d) {
+    d["Price"] = +d["Price"];
+    d["Shares"] = +d["Shares"];
+    d["Total Account Value"] = parseInt(d["Value"]);
+  });
+  console.log(distData);
+
+  debugger;
+
+  // Scale the range of the distData again
+  x.domain([distData[0].Date, distData[distData.length - 1].Date]);
+  y0.domain(d3.extent(distData, function (d) {
+    return d["Price"];
+  }));
+  y1.domain(d3.extent(distData, function (d) {
+    return d["Shares"];
+  }));
+
+  // Select the section we want to apply our changes to
+  var svg = d3.select('#line').transition();
+
+  var lineShareValue = d3.line().x(function (d) {
+    return x(d.Date);
+  }).y(function (d) {
+    return y0(d["Price"]);
+  }).curve(d3.curveMonotoneX);
+
+  var lineShareNumber = d3.line().x(function (d) {
+    return x(d.Date);
+  }).y(function (d) {
+    return y1(d["Shares"]);
+  }).curve(d3.curveMonotoneX);
+
+  // Make the changes
+  svg.select(".line0") // change the line
+  .duration(750).attr("d", lineShareValue(distData));
+
+  svg.select(".line1") // change the line
+  .duration(750).attr("d", lineShareNumber(distData));
+
+  svg.select('.x.axis').duration(750).call(d3.axisBottom(x));
+};
+
 /***/ }),
-/* 3 */,
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -298,7 +365,35 @@ var drawShares = exports.drawShares = function drawShares(data) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.drawDistributions = undefined;
+
+var _share_tracking = __webpack_require__(2);
+
 var drawDistributions = exports.drawDistributions = function drawDistributions(data) {
+  // debugger
+  // const data = d3.nest()
+  //   // .key(function(d) { return d.Date; })
+  //   .key(function(d) { return d['Name']; })
+  //   .rollup(function(d) {
+  //    return d3.sum(d, function(g) {return g['Shares']; });
+  //  }).entries(distData);
+  //
+  // data.forEach(function(d) {
+  //   d.Date = d.Date;
+  //   debugger
+  //   d['Name'] = d.key;
+  //   d['Shares'] = Math.round(d.value);
+  // });
+
+  var parseTime = d3.timeParse("%m/%d/%Y");
+
+  data.forEach(function (d) {
+    d.Date = parseTime(d.Date);
+    // console.log(d.Date)
+    d['Name'] = d['Name'];
+    d["Price"] = +d["Price"];
+    d["Shares"] = +d["Shares"];
+  });
 
   var tooltip = d3.select('#pie').append('div').attr('class', 'tooltip');
 
@@ -312,18 +407,9 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var height = 360;
   var radius = Math.min(width, height) / 2;
 
-  var color = d3.scaleOrdinal(d3.schemeCategory20c);
+  // const color = d3.scaleOrdinal(d3.schemeCategory20c);
 
-  // const color = d3.scaleOrdinal()
-  //   .range([
-  //     "#2C93E8",
-  //     "#838690",
-  //     "#F56C4E",
-  //     "#C2E812",
-  //     "#EFC7C2",
-  //     "#7A5C61",
-  //     "#7E4E60"
-  //   ]);
+  var color = d3.scaleOrdinal().range(["#2C93E8", "#838690", "#F56C4E", "#C2E812", "#EFC7C2", "#7A5C61", "#7E4E60"]);
 
   var svg = d3.select('#pie').append('svg')
   // .attr('width', "75%")
@@ -337,43 +423,128 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var arc = d3.arc().innerRadius(radius - donutWidth).outerRadius(radius);
 
   var pie = d3.pie().value(function (d) {
-    return d["#Shares"];
+    return d["Shares"];
   }).sort(null);
 
-  var legendRectSize = 18;
-  var legendSpacing = 4;
-
-  var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).attr('fill', function (d, i) {
+  var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).style('opacity', '0.6').attr('fill', function (d, i) {
     return color(d.data["Name"]);
+  }).on('click', function (d) {
+    // console.log(data)
+    var filteredData = data.filter(function (el, idx) {
+      // if (idx === 20) {
+      //
+      //   debugger
+      // }
+      // console.log(data)
+      return el['Name'] === d.data.Name;
+    });
+    var parseTime = d3.timeParse("%m/%d/%Y");
+    // filteredData.forEach(d => {
+    //   d.Date = parseTime(d.Date);
+    //   d['Name'] = d['Name'];
+    //   d["Price"] = +d["Price"];
+    //   d["Shares"] = +d["Shares"];
+    //   d["Total Account Value"] = +d["Value"];
+    // });
+    // console.log(filteredData)
+    // const data = d3.nest()
+    //   // .key(function(d) { return d.Date; })
+    //   .key(function(d) { return d['Name']; })
+    //   .rollup(function(d) {
+    //    return d3.sum(d, function(g) {return g['Shares']; });
+    //  }).entries(distData);
+    // debugger
+    (0, _share_tracking.updateData)(filteredData);
   }).on('mouseover', function (d) {
     var total = d3.sum(data.map(function (d) {
-      return d["#Shares"];
+      return d["Shares"];
     }));
-    d3.select(this).style('opacity', '0.7');
-
-    var percent = Math.round(1000 * d.data["#Shares"] / total) / 10;
-    tooltip.select('.label').html(d.data["Name"]);
-    tooltip.select('.count').html(d.data["#Shares"] + ' shares');
-    tooltip.select('.percent').html(percent + '%');
-    tooltip.style('display', 'block');
-  }).on('mouseout', function () {
     d3.select(this).style('opacity', '1');
+    d3.select('.dist-label').style('opacity', '0');
+
+    var percent = Math.round(1000 * d.data["Shares"] / total) / 10;
+    tooltip.select('.label').html(d.data["Name"]);
+    tooltip.select('.count').html(d.data["Shares"] + ' shares');
+    tooltip.select('.percent').html(percent + '%');
+    tooltip.style('display', 'flex');
+  }).on('mouseout', function () {
+    d3.select(this).style('opacity', '0.6');
+    d3.select('.dist-label').style('opacity', '1');
     tooltip.style('display', 'none');
   });
 
-  var legend = svg.selectAll('.legend').data(color.domain()).enter().append('g').attr('class', 'legend').attr('transform', function (d, i) {
-    var height = legendRectSize + legendSpacing;
-    var offset = height * color.domain().length / 2;
-    var horz = -2 * legendRectSize;
-    var vert = i * height - offset;
-    return 'translate(' + horz + ',' + vert + ')';
-  });
+  var distLabel = d3.select('#pie').append('div').attr('class', 'dist-label').text('Distributions');
 
-  legend.append('rect').attr('width', legendRectSize).attr('height', legendRectSize).style('fill', color).style('stroke', color);
+  // const legendRectSize = 18;
+  // const legendSpacing = 4;
 
-  legend.append('text').attr('x', legendRectSize + legendSpacing).attr('y', legendRectSize - legendSpacing).text(function (d) {
-    return d;
-  });
+  // const legend = svg.selectAll('.legend')
+  //   .data(color.domain())
+  //   .enter()
+  //   .append('g')
+  //   .attr('class', 'legend')
+  //   .attr('transform', function(d, i) {
+  //     const height = legendRectSize + legendSpacing;
+  //     const offset =  height * color.domain().length / 2;
+  //     const horz = -2 * legendRectSize;
+  //     const vert = i * height - offset;
+  //     return 'translate(' + horz + ',' + vert + ')';
+  //   });
+  //
+  // legend.append('rect')
+  //   .attr('width', legendRectSize)
+  //   .attr('height', legendRectSize)
+  //   .style('fill', color);
+  //
+  // legend.append('text')
+  //   .attr('x', legendRectSize + legendSpacing)
+  //   .attr('y', legendRectSize - legendSpacing)
+  //   .text(function(d) { return d; });
+
+  // const distData =
+
+  // function updateData(distData) {
+  //   const parseTime = d3.timeParse("%m/%d/%Y");
+  //
+  //   distData.forEach(d => {
+  //     d.Date = parseTime(d.Date);
+  //     d["Price"] = +d["Price"];
+  //     d["Shares"] = +d["Shares"];
+  //     d["Value"] = +d["Total Account Value"];
+  //   });
+  //
+  //   // Scale the range of the distData again
+  //   x.domain([distData[0].Date, distData[distData.length - 1].Date]);
+  //   y0.domain(d3.extent(distData, d => d["Price"]));
+  //   y1.domain(d3.extent(distData, d => d["Shares"]));
+  //
+  //   // Select the section we want to apply our changes to
+  //   let svg = d3.select('#line').transition();
+  //
+  //
+  //   const lineShareValue = d3.line()
+  //     .x(d => x(d.Date))
+  //     .y(d => y0(d["Price"]))
+  //     .curve(d3.curveMonotoneX);
+  //
+  //   const lineShareNumber = d3.line()
+  //     .x(d => x(d.Date))
+  //     .y(d => y1(d["Shares"]))
+  //     .curve(d3.curveMonotoneX);
+  //
+  //   // Make the changes
+  //   svg.select(".line0")   // change the line
+  //       .duration(750)
+  //       .attr("d", lineShareValue(distData));
+  //
+  //   svg.select(".line1")   // change the line
+  //       .duration(750)
+  //       .attr("d", lineShareNumber(distData));
+  //
+  //   svg.select('.x.axis')
+  //     .duration(750)
+  //     .call(d3.axisBottom(x));
+  // }
 };
 
 /***/ })
