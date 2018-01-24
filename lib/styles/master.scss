@@ -99,12 +99,12 @@ body {
 }
 
 
-.legend {
-  font-size: 13px;
-  &:last-child {
-    display: none;
-  }
-}
+// .legend {
+//   font-size: 13px;
+//   &:last-child {
+//     display: none;
+//   }
+// }
 
 rect {
   stroke-width: 2;
@@ -117,7 +117,8 @@ rect {
   padding: 10px;
   position: absolute;
   text-align: center;
-  top: 95px;
+  align-self: center;
+  flex-direction: column;
   width: 80px;
   z-index: 10;
   line-height: 140%;
@@ -125,6 +126,14 @@ rect {
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   border-radius: 2px;
+}
+
+.dist-label {
+  position: absolute;
+  text-align: center;
+  align-self: center;
+  font-weight: bolder;
+  font-size: 20px;
 }
 
 .label {
