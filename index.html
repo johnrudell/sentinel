@@ -13,10 +13,11 @@
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script> -->
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js'></script>
     <script src="./bundle.js"></script>
+    <script src='./lib/scripts/info.js'></script>
   </head>
   <body>
     <main class="content">
@@ -29,8 +30,16 @@
       </div>
       <div class="bottom">
         <div class="description">
-          <p>Sentinel tracks the shares of Genus Holding Co. by visualizing their respective share amount, share value, and total account value.</p>
-          <p>The eventual goal is to have account holders log in and see their individual standing within the holding company.</p>
+          <div id="toggle">
+            <button class="toggle-about active">About</button>
+            <button class="toggle-company">Genus Holding Company</button>
+            <button class="toggle-future">Future improvements</button>
+          </div>
+          <div id="info">
+            <p class="about">Sentinel is a web app that pulls data from Google Spreadsheets using Tabletop.js. This data represents Genus Holding Co.'s share value, number of shares, and total account value, which are then visualized with D3.js.</p>
+            <p class="company">Genus Holding Co. is an investment club with the purpose of investing the assets of the partnership in stocks, bonds, and projects for education and benefit of the partners.</p>
+            <p class="future">The eventual goal is to have account holders log in and see their individual standing within the holding company.</p>
+          </div>
         </div>
         <section id="pie"></section>
 
