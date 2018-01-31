@@ -408,7 +408,7 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var yearInc = startYear;
 
   var arrayDates = [];
-  var graphData = [];
+
   for (var i = 0; i < inc; i++) {
 
     var month = startMonth + i;
@@ -424,6 +424,9 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   }
 
   var dateMap = function dateMap(value, person) {
+    // debugger
+    var graphData = [];
+
     var nameFilter = void 0;
     if (person) {
       nameFilter = _.filter(distData, function (d) {
@@ -454,24 +457,46 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     }
     return graphData;
   };
+  //
   // const getPrice = () => {
   //
   //   _.filter
   //
   // }
 
+  var findBalance = function findBalance(obj) {
+    // debugger
+
+    var result = Object.assign(obj[1], obj[2]);
+    debugger;
+    return result;
+    // let newArray = _.each(obj, value => {
+    //   _.each(value, )
+    //   debugger
+    //   return value['Principle'] + value['Earned'];
+    // });
+  };
+
   // const earningsData = dateMap("Shares", "Matt");
   // const dataByPerson = [];
   var getDataByPerson = function getDataByPerson(name) {
-    var dataByPerson = [dateMap("Shares", name)];
+    // debugger
+    var dataByPerson = {
+      "Shares": dateMap("Shares", name),
+      "Principle": dateMap("Value", name),
+      "Earned": dateMap("MoneyMade", name)
+      //"Balance":
 
-    // dataByPerson.push(dateMap("Shares", name));
-    // dataByPerson.push(dateMap("Value", name));
-    // dataByPerson.push(dateMap("MoneyMade", name));
-    return dataByPerson;
+
+      // dataByPerson.push(dateMap("Shares", name));
+      // dataByPerson.push(dateMap("Value", name));
+      // dataByPerson.push(dateMap("MoneyMade", name));
+    };return dataByPerson;
   };
-  // console.log(getDataByPerson("Matt"))
-  // debugger
+  console.log(getDataByPerson("Matt"));
+
+  var testData = getDataByPerson("Matt");
+  findBalance(testData);
   //make price static
 
   //    var principleData = datamap(principle)
