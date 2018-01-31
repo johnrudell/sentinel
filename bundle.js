@@ -377,7 +377,7 @@ exports.drawDistributions = undefined;
 var _share_tracking = __webpack_require__(0);
 
 var drawDistributions = exports.drawDistributions = function drawDistributions(distData) {
-  // debugger
+  //
   var data = d3.nest()
   // .key(function(d) { return d.Date; })
   .key(function (d) {
@@ -390,7 +390,7 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
 
   data.forEach(function (d) {
     d.Date = d.Date;
-    // debugger
+    //
     d['Name'] = d.key;
     d['Shares'] = Math.round(d.value);
   });
@@ -399,19 +399,18 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
 
   var cMonth = new Date().getMonth() + 1;
   var cYear = new Date().getFullYear();
-  // debugger
 
   var startYear = 2017;
-  var startMonth = 5;
+  var startMonth = 6;
   var yearDif = cYear - startYear;
-  var inc = cMonth + yearDif * 12;
+  var inc = cMonth + yearDif * 12 - startMonth;
   var yearInc = startYear;
 
   var arrayDates = [];
 
-  for (var i = 0; i < inc; i++) {
+  for (var _i = 0; _i <= inc; _i++) {
 
-    var month = startMonth + i;
+    var month = startMonth + _i;
     var incDate = void 0;
     if (month > 12) {
       month = 1;
@@ -424,79 +423,122 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   }
 
   var dateMap = function dateMap(value, person) {
-    // debugger
+
     var graphData = [];
 
     var nameFilter = void 0;
-    if (person) {
+
+    if (person === "Total") {
+      nameFilter = distData;
+    } else {
       nameFilter = _.filter(distData, function (d) {
         return d.Name === person || d.Name === "Valuation";
       });
     }
 
-    var _loop = function _loop(_i) {
-      var dateComp = arrayDates[_i];
+    var sumValues = void 0;
+
+    var _loop = function _loop(j) {
+      var dateComp = arrayDates[j];
       var dateFilter = _.filter(nameFilter, function (d) {
         return new Date(d.Date).getTime() < dateComp.getTime();
       });
 
-      var sumValues = _.reduce(dateFilter, function (acc, num) {
-        return parseInt(acc) + parseInt(num[value]);
-      }, 0);
+      if (value === "Price" && dateFilter.length > 0) {
+        var d = dateFilter.length - 1;
+        // convert price from string to int
+        // debugger
+        sumValues = parseInt(dateFilter[d]["Price"]);
+      } else {
+        // debugger
+        var removePrice = _.filter(dateFilter, function (d) {
+          // debugger
+          return d['Name'] !== 'Valuation';
+        });
+        sumValues = _.reduce(removePrice, function (acc, num) {
+          // debugger
+          if (num['Name'] !== 'Valuation') {
+            // debugger
+            return parseInt(acc) + parseInt(num[value]);
+          }
+        }, 0);
+      }
 
       var object = {
-        date: arrayDates[_i],
+        date: arrayDates[j],
         value: sumValues
-      };
+        // debugger
 
-      graphData.push(object);
+      };graphData.push(object);
     };
 
-    for (var _i = 0; _i < arrayDates.length; _i++) {
-      _loop(_i);
+    for (var j = 0; j < arrayDates.length; j++) {
+      _loop(j);
     }
+    // debugger
     return graphData;
   };
-  //
-  // const getPrice = () => {
-  //
-  //   _.filter
-  //
-  // }
 
   var findBalance = function findBalance(obj) {
-    // debugger
+    obj["Balance"] = [];
 
-    var result = Object.assign(obj[1], obj[2]);
-    debugger;
-    return result;
-    // let newArray = _.each(obj, value => {
-    //   _.each(value, )
-    //   debugger
-    //   return value['Principle'] + value['Earned'];
-    // });
+    for (var _i2 = 0; _i2 < obj["Earned"].length; _i2++) {
+      // debugger
+      obj["Balance"][_i2] = { "date": obj["Earned"][_i2].date, "value": obj["Price"][_i2].value * obj["Shares"][_i2].value
+        // obj["Balance"][i] = {"date": obj["Earned"][i].date , "value": obj["Earned"][i].value + obj["Principle"][i].value }
+      };
+    }
+    // shares * price = balance // earned + prinicple = balance
+    return obj;
   };
 
   // const earningsData = dateMap("Shares", "Matt");
   // const dataByPerson = [];
   var getDataByPerson = function getDataByPerson(name) {
-    // debugger
+    //
     var dataByPerson = {
       "Shares": dateMap("Shares", name),
       "Principle": dateMap("Value", name),
-      "Earned": dateMap("MoneyMade", name)
+      "Earned": dateMap("MoneyMade", name),
+      "Price": dateMap("Price", name)
       //"Balance":
 
 
       // dataByPerson.push(dateMap("Shares", name));
       // dataByPerson.push(dateMap("Value", name));
       // dataByPerson.push(dateMap("MoneyMade", name));
-    };return dataByPerson;
+    };var dataByPersonWithBalance = findBalance(dataByPerson);
+    return dataByPersonWithBalance;
   };
-  console.log(getDataByPerson("Matt"));
 
-  var testData = getDataByPerson("Matt");
-  findBalance(testData);
+  console.log(getDataByPerson("Matt"));
+  var arrayOfNames = [];
+  for (var i = 0; i < data.length; i++) {
+    arrayOfNames.push(data[i].key);
+  }
+  arrayOfNames.push("Total");
+
+  var nameDataMapping = function nameDataMapping(array) {
+    var arrayOfObjects = [];
+
+    for (var i = 0; i < arrayOfNames.length; i++) {
+      //  arrayOfObjects.push(getDataByPerson(arrayOfNames[i]))
+      arrayOfObjects[arrayOfNames[i]] = getDataByPerson(arrayOfNames[i]);
+    }
+    return arrayOfObjects;
+  };
+
+  var finalData = nameDataMapping(arrayOfNames);
+  // debugger
+
+
+  // circle = earned
+  // line = valuation ( price * num of shares)
+  // bar = shares
+  // principle = line off of bar
+  // legend only has price
+
+
   //make price static
 
   //    var principleData = datamap(principle)
@@ -505,11 +547,13 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   // const function (creates another function for date)
 
   data.forEach(function (d) {
+    //
     d.Date = parseTime(d.Date);
     // console.log(d.Date)
     d['Name'] = d['Name'];
     d["Shares"] = +d["Shares"];
-    d["Price"] = +d["Price"];
+    d["Earned"] = +d["Earned"];
+    d["Balance"] = +d["Balance"];
   });
 
   var tooltip = d3.select('#pie').append('div').attr('class', 'tooltip');
@@ -545,39 +589,37 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
 
   var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).style('opacity', '0.6').attr('fill', function (d, i) {
     return color(d.data["Name"]);
-  })
-  // .on('click', d => {
-  //   console.log(data)
-  //   // const month = data.filter(d => d.date.getMonth() === 0);
-  //
-  //   // debugger
-  //   const filteredData = data.filter( (el, idx) => {
-  //     // if (idx === 20) {
-  //     //
-  //     //   debugger
-  //     // }
-  //     // console.log(data)
-  //     return el['Name'] === d.data.Name
-  //   })
-  //   //   const parseTime = d3.timeParse("%m/%d/%Y");
-  //   // filteredData.forEach(d => {
-  //   //   d.Date = parseTime(d.Date);
-  //   //   d['Name'] = d['Name'];
-  //   //   d["Price"] = +d["Price"];
-  //   //   d["Shares"] = +d["Shares"];
-  //   //   d["Total Account Value"] = +d["Value"];
-  //   // });
-  //   // console.log(filteredData)
-  //   // const data = d3.nest()
-  //   //   // .key(function(d) { return d.Date; })
-  //   //   .key(function(d) { return d['Name']; })
-  //   //   .rollup(function(d) {
-  //   //    return d3.sum(d, function(g) {return g['Shares']; });
-  //   //  }).entries(distData);
-  //   // debugger
-  //   updateData(filteredData);
-  // })
-  .on('mouseover', function (d) {
+  }).on('click', function (d) {
+    console.log(data);
+    // const month = data.filter(d => d.date.getMonth() === 0);
+
+
+    var filteredData = data.filter(function (el, idx) {
+      // if (idx === 20) {
+      //
+
+      // }
+      // console.log(data)
+      return el['Name'] === d.data.Name;
+    });
+    //   const parseTime = d3.timeParse("%m/%d/%Y");
+    // filteredData.forEach(d => {
+    //   d.Date = parseTime(d.Date);
+    //   d['Name'] = d['Name'];
+    //   d["Price"] = +d["Price"];
+    //   d["Shares"] = +d["Shares"];
+    //   d["Total Account Value"] = +d["Value"];
+    // });
+    // console.log(filteredData)
+    // const data = d3.nest()
+    //   // .key(function(d) { return d.Date; })
+    //   .key(function(d) { return d['Name']; })
+    //   .rollup(function(d) {
+    //    return d3.sum(d, function(g) {return g['Shares']; });
+    //  }).entries(distData);
+
+    (0, _share_tracking.updateData)(filteredData);
+  }).on('mouseover', function (d) {
     var total = d3.sum(data.map(function (d) {
       return d["Shares"];
     }));
