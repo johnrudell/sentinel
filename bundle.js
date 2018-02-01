@@ -76,25 +76,27 @@ Object.defineProperty(exports, "__esModule", {
 var x = void 0;
 var y0 = void 0;
 var y1 = void 0;
-var lineShareValue = void 0;
-var lineShareNumber = void 0;
+var linePrice = void 0;
+var lineBalance = void 0;
+
+var margin = { top: 20, right: 50, bottom: 30, left: 50 };
+var width = 960 - margin.left - margin.right;
+var height = 500 - margin.top - margin.bottom;
 
 var drawShares = exports.drawShares = function drawShares(data) {
 
-  var margin = { top: 20, right: 50, bottom: 30, left: 50 };
-  var width = 960 - margin.left - margin.right;
-  var height = 500 - margin.top - margin.bottom;
-
   var parseTime = d3.timeParse("%m/%d/%Y");
   var bisectDate = d3.bisector(function (d) {
-    return d.Date;
+    return d.date;
   }).left;
 
-  data.forEach(function (d) {
-    d.Date = parseTime(d.Date);
-    d["Price"] = +d["Price"];
-    d["Shares"] = +d["Shares"];
-  });
+  // circle = earned
+  // line = valuation(balance?) ( price * num of shares, but this becomes principle/value)
+  // bar = shares
+  // principle = line off of bar
+  // legend only has price
+  // const balance = data.Balance.value;
+
 
   x = d3.scaleTime().range([0, width]);
 
@@ -102,32 +104,29 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   y1 = d3.scaleLinear().range([height, 0]);
 
-  lineShareValue = d3.line().x(function (d) {
-    return x(d.Date);
+  linePrice = d3.line().x(function (d) {
+    return x(d.date);
   }).y(function (d) {
-    return y0(d["Price"]);
+    return y0(d.price);
   }).curve(d3.curveMonotoneX);
 
-  lineShareNumber = d3.line().x(function (d) {
-    return x(d.Date);
+  lineBalance = d3.line().x(function (d) {
+    return x(d.date);
   }).y(function (d) {
-    return y1(d["Shares"]);
+    return y1(d.balance);
   }).curve(d3.curveMonotoneX);
 
-  var svg = d3.select('#line').append('svg').classed('sharetracking', true).attr('width', "75%").attr('height', "75%").attr("preserveAspectRatio", "xMinYMin meet").attr("viewBox", "0 0 960 500").append('g').attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
+  var svg = d3.select('#line').append('svg').classed('sharetracking', true).attr('width', "75%").attr('height', "75%").attr("preserveAspectRatio", "xMinYMin meet").attr("viewBox", "0 0 960 500").append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
-  x.domain([data[0].Date, data[data.length - 1].Date]);
-  y0.domain(d3.extent(data, function (d) {
-    return d["Price"];
-  }));
-  y1.domain(d3.extent(data, function (d) {
-    return d["Shares"];
-  }));
+  x.domain([data[0].date, data[data.length - 1].date]);
+  // y0.domain(d3.extent(data, d => d.price));
+  y0.domain([data[0].price * 0.95, data[data.length - 1].price * 1.05]);
+  y1.domain([0, data[data.length - 1].balance * 1.5]);
 
-  svg.append('g').attr('class', 'x axis axis--x').attr('transform', "translate(0, " + height + ")").call(d3.axisBottom(x)
+  svg.append('g').attr('class', 'x axis axis--x').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(x)
   // .tickFormat(d3.timeFormat("%b %Y")));
   // date format year.month for x axis
-  .tickFormat(d3.timeFormat("%y.%m")));
+  .tickFormat(d3.timeFormat("%m.%y")));
 
   // x axis line styles
   // d3.selectAll('.axis path')
@@ -141,13 +140,13 @@ var drawShares = exports.drawShares = function drawShares(data) {
   //   .style('stroke', 'blue')
   //   .style('shape-rendering', 'crispEdges');
 
-  svg.append('path').datum(data).attr('class', 'line line0').attr('d', lineShareValue);
+  svg.append('path').datum(data).attr('class', 'line line0').attr('d', linePrice);
 
-  svg.append('path').datum(data).attr('class', 'line line1').style('stroke', 'none').attr('d', lineShareNumber);
+  svg.append('path').datum(data).attr('class', 'line line1').style('stroke', 'none').attr('d', lineBalance);
 
   var focus0 = svg.append('g').attr('class', 'focus focus0').style('display', 'none');
 
-  focus0.append('circle').classed("price-circle", true).attr('r', 4.5);
+  focus0.append('circle').classed("circle-earned", true).attr('r', 4.5);
 
   focus0.append('line').classed('x', true);
 
@@ -163,7 +162,7 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   focus1.append('line').classed('x', true);
 
-  focus1.append('line').classed('y', true);
+  focus1.append('line').classed('y  ', true);
 
   focus1.append('text').classed('share-value', true).attr("transform", "translate(-225, -15)").attr('dy', '.35em');
 
@@ -176,7 +175,8 @@ var drawShares = exports.drawShares = function drawShares(data) {
     focus1.style('display', null);
   }).on('mouseout', function () {
     // only hide share-amount focus
-    focus1.style('display', 'none');
+    // focus0.style('display', 'none')
+    // focus1.style('display', 'none')
   }).on('mousemove', mousemove);
 
   d3.selectAll('.line').style('fill', 'none').style('stroke-width', '1.5px');
@@ -209,100 +209,162 @@ var drawShares = exports.drawShares = function drawShares(data) {
 
   d3.selectAll('.text').attr('x', 0);
 
+  ///build mouseover attributes
+
+  var x0 = x.invert(d3.mouse(undefined)[0]);
+  var i = bisectDate(data, x0, 1);
+  var d0 = data[i - 1];
+  var d1 = data[i];
+  var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+  d3.selectAll(".focus").selectAll('line.x').attr('x1', 0).attr('x2', -x(d.date)).attr('y1', 0).attr('y2', 0);
+
+  d3.select('.text0').text('price: $' + d.price);
+
+  d3.select('.text1').text('balance: $' + d.balance);
+
+  d3.select('.text2').text('shares: ' + d.shares);
+
+  // share value dashed line
+  d3.select(".focus0").selectAll('line.x').attr('x2', -x(d.date) - width);
+
+  // share amt dashed line
+  d3.select(".focus1").selectAll('line.x').attr('x2', x(d.date) + width * 2);
+
+  d3.selectAll(".focus").selectAll('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0);
+
+  focus0.select('line.y').attr('y2', height - y0(d.price));
+  focus1.select('line.y').attr('y2', height - y1(d.balance));
+
+  if (d.earned < 0) d.earned = 0;
+
+  // circle radius hover for Price
+  d3.select(".circle-earned").attr("r", d.earned / 100);
+
+  // append text
+  focus0.attr('transform', 'translate(' + x(d.date) + ', ' + y0(d.price) + ')');
+  focus0.select('.share-value').text('price: $' + d.price);
+
+  focus1.attr('transform', 'translate(' + x(d.date) + ', ' + y1(d.balance) + ')');
+  // focus1.select('.shares').text(`balance: $${d.balance}`);
+  focus1.select('.total-acct-val').text('balance: $' + d.balance);
+
   function mousemove() {
+
     var x0 = x.invert(d3.mouse(this)[0]);
     var i = bisectDate(data, x0, 1);
     var d0 = data[i - 1];
     var d1 = data[i];
-    var d = x0 - d0.Date > d1.Date - x0 ? d1 : d0;
+    var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
 
-    d3.selectAll(".focus").selectAll('line.x').attr('x1', 0).attr('x2', -x(d.Date)).attr('y1', 0).attr('y2', 0);
+    d3.selectAll(".focus").selectAll('line.x').attr('x1', 0).attr('x2', -x(d.date)).attr('y1', 0).attr('y2', 0);
 
-    d3.select('.text0').text("price: $" + d.Price);
+    d3.select('.text0').text('price: $' + d.price);
 
-    d3.select('.text1').text("shares: " + d.Shares);
+    d3.select('.text1').text('balance: $' + d.balance);
 
-    d3.select('.text2').text("total account value: $" + d['Total Account Value']);
+    d3.select('.text2').text('shares: ' + d.shares);
 
     // share value dashed line
-    d3.select(".focus0").selectAll('line.x').attr('x2', -x(d.Date) - width);
+    d3.select(".focus0").selectAll('line.x').attr('x2', -x(d.date) - width);
 
     // share amt dashed line
-    d3.select(".focus1").selectAll('line.x').attr('x2', x(d.Date) + width * 2);
+    d3.select(".focus1").selectAll('line.x').attr('x2', x(d.date) + width * 2);
 
     d3.selectAll(".focus").selectAll('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0);
 
-    focus0.select('line.y').attr('y2', height - y0(d["Price"]));
-    focus1.select('line.y').attr('y2', height - y1(d["Shares"]));
+    focus0.select('line.y').attr('y2', height - y0(d.price));
+    focus1.select('line.y').attr('y2', height - y1(d.balance));
+
+    if (d.earned < 0) d.earned = 0;
 
     // circle radius hover for Price
-    d3.select(".price-circle").attr("r", (d.Price - 75) * 3);
+    d3.select(".circle-earned").attr("r", d.earned / 100);
 
     // append text
-    focus0.attr('transform', "translate(" + x(d.Date) + ", " + y0(d["Price"]) + ")");
-    focus0.select('.share-value').text("share value: $" + d["Price"]);
+    focus0.attr('transform', 'translate(' + x(d.date) + ', ' + y0(d.price) + ')');
+    focus0.select('.share-value').text('price: $' + d.price);
 
-    focus1.attr('transform', "translate(" + x(d.Date) + ", " + y1(d["Shares"]) + ")");
-    focus1.select('.shares').text(d["Shares"] + " shares");
-    focus1.select('.total-acct-val').text("total account value: $" + d["Total Account Value"]);
+    focus1.attr('transform', 'translate(' + x(d.date) + ', ' + y1(d.balance) + ')');
+    // focus1.select('.shares').text(`balance: $${d.balance}`);
+    focus1.select('.total-acct-val').text('balance: $' + d.balance);
 
     // If text gets too low, reposition it beyond date overlap
-    var shares = focus1.select('.shares');
-    if (height - y1(d["Shares"]) < 25) {
-      shares.attr("transform", "translate(0, 30)rotate(90)");
-    } else {
-      shares.attr("transform", "translate(0, 15)rotate(90)");
-    }
+    // const shares = focus1.select('.shares')
+    // if ( (height - y1(d["Shares"]) < 25)) {
+    //   shares.attr("transform", "translate(0, 30)rotate(90)")
+    // } else {
+    //   shares.attr("transform", "translate(0, 15)rotate(90)")
+    // }
   }
 };
 
-var updateData = exports.updateData = function updateData(distData) {
-  var parseTime = d3.timeParse("%m/%d/%Y");
-  // console.log(distData)
-  // debugger
-
-  distData.forEach(function (d) {
-    d["Price"] = +d["Price"];
-    d["Shares"] = +d["Shares"];
-    d["Total Account Value"] = parseInt(d["Value"]);
-  });
-  console.log(distData);
-
-  // debugger
-
-  // Scale the range of the distData again
-  x.domain([distData[0].Date, distData[distData.length - 1].Date]);
-  y0.domain(d3.extent(distData, function (d) {
-    return d["Price"];
-  }));
-  y1.domain(d3.extent(distData, function (d) {
-    return d["Shares"];
-  }));
-
-  // Select the section we want to apply our changes to
-  var svg = d3.select('#line').transition();
-
-  var lineShareValue = d3.line().x(function (d) {
-    return x(d.Date);
-  }).y(function (d) {
-    return y0(d["Price"]);
-  }).curve(d3.curveMonotoneX);
-
-  var lineShareNumber = d3.line().x(function (d) {
-    return x(d.Date);
-  }).y(function (d) {
-    return y1(d["Shares"]);
-  }).curve(d3.curveMonotoneX);
-
-  // Make the changes
-  svg.select(".line0") // change the line
-  .duration(750).attr("d", lineShareValue(distData));
-
-  svg.select(".line1") // change the line
-  .duration(750).attr("d", lineShareNumber(distData));
-
-  svg.select('.x.axis').duration(750).call(d3.axisBottom(x));
-};
+// export const updateData = data => {
+//
+//   //better strategy is to
+//
+//
+//   x.domain([data[0].date, data[data.length - 1].date]);
+//   y0.domain([(data[0].price * 0.95), (data[data.length - 1].price * 1.05)]);
+//   y1.domain([0, (data[data.length - 1].balance * 1.5)]);
+//
+//   let svg = d3.select('#line').transition();
+//
+//   linePrice = d3.line()
+//     .x(d => x(d.date))
+//     .y(d => y0(d.price))
+//       .curve(d3.curveMonotoneX);
+//
+//   lineBalance = d3.line()
+//     .x(d => x(d.date))
+//     .y(d => y1(d.balance))
+//       .curve(d3.curveMonotoneX);
+//
+//   // Make the changes
+//   svg.select(".line0")   // change the line
+//     .duration(750)
+//     .attr("d", linePrice(data));
+//
+//   svg.select(".line1")   // change the line
+//     .duration(750)
+//     .attr("d", lineBalance(data));
+//
+//   svg.select('.x.axis')
+//     .duration(750)
+//     .call(d3.axisBottom(x));
+//
+//   //remove
+//   // debugger
+//   // d3.selectAll('.focus1 line.y').remove();
+//   // d3.select('.focus0 line.y').
+//   // d3.selectAll('.focus1')
+//   //   .enter(data)
+//   //   .append('line')
+//   //   .classed('y', true)
+//   //   .attr('y2', 40);
+//
+//
+//   d3.selectAll('.focus1 line.y')
+//     .attr('y2', 0);
+//
+//   // d3.select('.focus1 line.y').remove();  height - y0(d.price
+//
+//
+//   // focus1.enter()append('line')
+//   //   .classed('y  ', true);
+//   //
+//   //
+//   // //update
+//   //
+//   // svg.select('line.y')
+//   //   .attr('y2', height - y0(d.price));
+//   // svg.select('line.y')
+//   //   .attr('y2', height - y1(d.balance));
+//
+//
+//
+//
+// }
 
 /***/ }),
 /* 1 */
@@ -344,18 +406,12 @@ var render = exports.render = function render() {
 
 var draw = function draw(data, tabletop) {
 
-  // const update = document.getElementById('update');
-  // $(update).on('click', () => {
-  //   updateData
-  // });
-
-
   $(".fa-spinner").css("display", "none");
   var shareTracking = tabletop.sheets("John Copy of ShareTracking").elements;
-  var distributions = tabletop.sheets("TestInterestPurchases").elements;
+  var distributionsData = tabletop.sheets("TestInterestPurchases").elements;
 
-  (0, _share_tracking.drawShares)(shareTracking);
-  (0, _distributions.drawDistributions)(distributions);
+  // drawShares(shareTracking);
+  (0, _distributions.drawDistributions)(distributionsData);
 };
 
 var loading = function loading() {
@@ -377,7 +433,7 @@ exports.drawDistributions = undefined;
 var _share_tracking = __webpack_require__(0);
 
 var drawDistributions = exports.drawDistributions = function drawDistributions(distData) {
-  //
+
   var data = d3.nest()
   // .key(function(d) { return d.Date; })
   .key(function (d) {
@@ -401,16 +457,16 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var cYear = new Date().getFullYear();
 
   var startYear = 2017;
-  var startMonth = 6;
+  var startMonth = 2;
   var yearDif = cYear - startYear;
   var inc = cMonth + yearDif * 12 - startMonth;
   var yearInc = startYear;
 
   var arrayDates = [];
 
-  for (var _i = 0; _i <= inc; _i++) {
+  for (var i = 0; i <= inc; i++) {
 
-    var month = startMonth + _i;
+    var month = startMonth + i;
     var incDate = void 0;
     if (month > 12) {
       month = 1;
@@ -422,11 +478,24 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     arrayDates.push(incDate);
   }
 
-  var dateMap = function dateMap(value, person) {
+  // const getBalance = (obj) => {
+  //   obj["Balance"] = [];
+  //
+  //   for (let i = 0; i < obj["Earned"].length; i++) {
+  //     // debugger
+  //     const price = obj["Price"][i].value;
+  //     const shares = obj["Shares"][i].value;
+  //
+  //     // obj["Balance"][i] = {"date": obj["Earned"][i].date , "value": obj["Earned"][i].value + obj["Principle"][i].value }
+  //   }
+  //   // shares * price = balance // earned + prinicple = balance
+  //   return price * shares;
+  // }
 
-    var graphData = [];
-
+  var dateMap = function dateMap(person) {
+    var personDataFrame = [];
     var nameFilter = void 0;
+    var sumValues = void 0;
 
     if (person === "Total") {
       nameFilter = distData;
@@ -436,125 +505,103 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
       });
     }
 
-    var sumValues = void 0;
+    // const getValueDataByDate = valueArray => {
 
     var _loop = function _loop(j) {
       var dateComp = arrayDates[j];
+      // debugger
       var dateFilter = _.filter(nameFilter, function (d) {
+        // debugger
         return new Date(d.Date).getTime() < dateComp.getTime();
       });
+      // debugger
+      //get price
+      var d = dateFilter.length - 1;
+      // convert price from string to int
+      // debugger
+      var PriceByDate = parseFloat(dateFilter[d]["Price"]);
+      // debugger
 
-      if (value === "Price" && dateFilter.length > 0) {
-        var d = dateFilter.length - 1;
-        // convert price from string to int
-        // debugger
-        sumValues = parseInt(dateFilter[d]["Price"]);
-      } else {
-        // debugger
-        var removePrice = _.filter(dateFilter, function (d) {
-          // debugger
-          return d['Name'] !== 'Valuation';
-        });
-        sumValues = _.reduce(removePrice, function (acc, num) {
-          // debugger
-          if (num['Name'] !== 'Valuation') {
-            // debugger
-            return parseInt(acc) + parseInt(num[value]);
-          }
-        }, 0);
-      }
+      //get other values
+      var removePrice = _.filter(dateFilter, function (d) {
+        return d['Name'] !== 'Valuation';
+      });
+      // debugger
+      //get shares
+      var sumShares = _.reduce(removePrice, function (acc, num) {
+        return acc + parseFloat(num["Shares"]);
+      }, 0);
+      // debugger
 
-      var object = {
+      //get principle
+      var principle = _.reduce(removePrice, function (acc, num) {
+        return acc + parseFloat(num["Value"]);
+      }, 0);
+      // debugger
+
+      //get Earned
+      var sumEarned = sumShares * PriceByDate - principle;
+      // debugger
+
+      //get balance
+      var sumBalance = principle + sumEarned;
+
+      var dateObject = {
         date: arrayDates[j],
-        value: sumValues
-        // debugger
-
-      };graphData.push(object);
+        earned: sumEarned,
+        price: PriceByDate,
+        shares: sumShares,
+        principle: principle,
+        balance: sumBalance
+      };
+      personDataFrame.push(dateObject);
     };
 
     for (var j = 0; j < arrayDates.length; j++) {
       _loop(j);
     }
-    // debugger
-    return graphData;
+
+    return personDataFrame;
   };
 
-  var findBalance = function findBalance(obj) {
-    obj["Balance"] = [];
-
-    for (var _i2 = 0; _i2 < obj["Earned"].length; _i2++) {
-      // debugger
-      obj["Balance"][_i2] = { "date": obj["Earned"][_i2].date, "value": obj["Price"][_i2].value * obj["Shares"][_i2].value
-        // obj["Balance"][i] = {"date": obj["Earned"][i].date , "value": obj["Earned"][i].value + obj["Principle"][i].value }
-      };
-    }
-    // shares * price = balance // earned + prinicple = balance
-    return obj;
-  };
-
-  // const earningsData = dateMap("Shares", "Matt");
-  // const dataByPerson = [];
-  var getDataByPerson = function getDataByPerson(name) {
-    //
-    var dataByPerson = {
-      "Shares": dateMap("Shares", name),
-      "Principle": dateMap("Value", name),
-      "Earned": dateMap("MoneyMade", name),
-      "Price": dateMap("Price", name)
-      //"Balance":
-
-
-      // dataByPerson.push(dateMap("Shares", name));
-      // dataByPerson.push(dateMap("Value", name));
-      // dataByPerson.push(dateMap("MoneyMade", name));
-    };var dataByPersonWithBalance = findBalance(dataByPerson);
-    return dataByPersonWithBalance;
-  };
-
-  console.log(getDataByPerson("Matt"));
   var arrayOfNames = [];
-  for (var i = 0; i < data.length; i++) {
-    arrayOfNames.push(data[i].key);
+  for (var _i = 0; _i < data.length; _i++) {
+    arrayOfNames.push(data[_i].key);
   }
   arrayOfNames.push("Total");
 
   var nameDataMapping = function nameDataMapping(array) {
-    var arrayOfObjects = [];
-
-    for (var i = 0; i < arrayOfNames.length; i++) {
-      //  arrayOfObjects.push(getDataByPerson(arrayOfNames[i]))
-      arrayOfObjects[arrayOfNames[i]] = getDataByPerson(arrayOfNames[i]);
+    var arrayOfObjects = {};
+    for (var _i2 = 0; _i2 < arrayOfNames.length; _i2++) {
+      arrayOfObjects[arrayOfNames[_i2]] = dateMap(arrayOfNames[_i2]);
     }
     return arrayOfObjects;
   };
 
   var finalData = nameDataMapping(arrayOfNames);
+
+  // Find the total property
+  // const total = Object.keys(finalData)
+  //   .filter(key => key === "Total")
+  //   .reduce((obj, key) => {
+  //     obj[key] = finalData[key];
+  //     return obj;
+  // }, {});
+
+
+  // const changeData = (data, changedVal) => {
+  //   for (let i = 0; i < data.length; i++) {
+  //     if (data[i].hasOwnProperty("value")) {
+  //       data[i][changedVal] = data[i]["value"];
+  //       delete data[i]["value"];
+  //     }
+  //   }
+  // }
+
   // debugger
-
-
-  // circle = earned
-  // line = valuation ( price * num of shares)
-  // bar = shares
-  // principle = line off of bar
-  // legend only has price
-
-
-  //make price static
-
-  //    var principleData = datamap(principle)
-
-
-  // const function (creates another function for date)
-
-  data.forEach(function (d) {
-    //
-    d.Date = parseTime(d.Date);
-    // console.log(d.Date)
-    d['Name'] = d['Name'];
-    d["Shares"] = +d["Shares"];
-    d["Earned"] = +d["Earned"];
-    d["Balance"] = +d["Balance"];
-  });
+  // console.log(total);
+  // debugger
+  (0, _share_tracking.drawShares)(finalData.Total);
 
   var tooltip = d3.select('#pie').append('div').attr('class', 'tooltip');
 
@@ -568,9 +615,17 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var height = 360;
   var radius = Math.min(width, height) / 2;
 
-  // const color = d3.scaleOrdinal(d3.schemeCategory20c);
-
-  var color = d3.scaleOrdinal().range(["#2C93E8", "#838690", "#F56C4E", "#C2E812", "#EFC7C2", "#7A5C61", "#7E4E60"]);
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
+  // const color = d3.scaleOrdinal()
+  //   .range([
+  //     "#2C93E8",
+  //     "#838690",
+  //     "#F56C4E",
+  //     "#C2E812",
+  //     "#EFC7C2",
+  //     "#7A5C61",
+  //     "#7E4E60"
+  //   ]);
 
   var svg = d3.select('#pie').append('svg')
   // .attr('width', "75%")
@@ -587,38 +642,16 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     return d["Shares"];
   }).sort(null);
 
+  // debugger
   var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).style('opacity', '0.6').attr('fill', function (d, i) {
     return color(d.data["Name"]);
   }).on('click', function (d) {
-    console.log(data);
-    // const month = data.filter(d => d.date.getMonth() === 0);
-
-
-    var filteredData = data.filter(function (el, idx) {
-      // if (idx === 20) {
-      //
-
-      // }
-      // console.log(data)
-      return el['Name'] === d.data.Name;
-    });
-    //   const parseTime = d3.timeParse("%m/%d/%Y");
-    // filteredData.forEach(d => {
-    //   d.Date = parseTime(d.Date);
-    //   d['Name'] = d['Name'];
-    //   d["Price"] = +d["Price"];
-    //   d["Shares"] = +d["Shares"];
-    //   d["Total Account Value"] = +d["Value"];
-    // });
-    // console.log(filteredData)
-    // const data = d3.nest()
-    //   // .key(function(d) { return d.Date; })
-    //   .key(function(d) { return d['Name']; })
-    //   .rollup(function(d) {
-    //    return d3.sum(d, function(g) {return g['Shares']; });
-    //  }).entries(distData);
-
-    (0, _share_tracking.updateData)(filteredData);
+    var filteredData = finalData[d.data.Name];
+    d3.select('.sharetracking').remove();
+    (0, _share_tracking.drawShares)(filteredData);
+    // d3.select('.circle-earned')
+    //   .style('background', 'red')
+    //   .transition();
   }).on('mouseover', function (d) {
     var total = d3.sum(data.map(function (d) {
       return d["Shares"];
@@ -638,77 +671,6 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   });
 
   var distLabel = d3.select('#pie').append('div').attr('class', 'dist-label').text('Distributions');
-
-  // const legendRectSize = 18;
-  // const legendSpacing = 4;
-
-  // const legend = svg.selectAll('.legend')
-  //   .data(color.domain())
-  //   .enter()
-  //   .append('g')
-  //   .attr('class', 'legend')
-  //   .attr('transform', function(d, i) {
-  //     const height = legendRectSize + legendSpacing;
-  //     const offset =  height * color.domain().length / 2;
-  //     const horz = -2 * legendRectSize;
-  //     const vert = i * height - offset;
-  //     return 'translate(' + horz + ',' + vert + ')';
-  //   });
-  //
-  // legend.append('rect')
-  //   .attr('width', legendRectSize)
-  //   .attr('height', legendRectSize)
-  //   .style('fill', color);
-  //
-  // legend.append('text')
-  //   .attr('x', legendRectSize + legendSpacing)
-  //   .attr('y', legendRectSize - legendSpacing)
-  //   .text(function(d) { return d; });
-
-  // const distData =
-
-  // function updateData(distData) {
-  //   const parseTime = d3.timeParse("%m/%d/%Y");
-  //
-  //   distData.forEach(d => {
-  //     d.Date = parseTime(d.Date);
-  //     d["Price"] = +d["Price"];
-  //     d["Shares"] = +d["Shares"];
-  //     d["Value"] = +d["Total Account Value"];
-  //   });
-  //
-  //   // Scale the range of the distData again
-  //   x.domain([distData[0].Date, distData[distData.length - 1].Date]);
-  //   y0.domain(d3.extent(distData, d => d["Price"]));
-  //   y1.domain(d3.extent(distData, d => d["Shares"]));
-  //
-  //   // Select the section we want to apply our changes to
-  //   let svg = d3.select('#line').transition();
-  //
-  //
-  //   const lineShareValue = d3.line()
-  //     .x(d => x(d.Date))
-  //     .y(d => y0(d["Price"]))
-  //     .curve(d3.curveMonotoneX);
-  //
-  //   const lineShareNumber = d3.line()
-  //     .x(d => x(d.Date))
-  //     .y(d => y1(d["Shares"]))
-  //     .curve(d3.curveMonotoneX);
-  //
-  //   // Make the changes
-  //   svg.select(".line0")   // change the line
-  //       .duration(750)
-  //       .attr("d", lineShareValue(distData));
-  //
-  //   svg.select(".line1")   // change the line
-  //       .duration(750)
-  //       .attr("d", lineShareNumber(distData));
-  //
-  //   svg.select('.x.axis')
-  //     .duration(750)
-  //     .call(d3.axisBottom(x));
-  // }
 };
 
 /***/ })
