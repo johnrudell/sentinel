@@ -9,5 +9,12 @@ Sentinel is a web app that pulls data from Google Spreadsheets real time using T
   + Pull data real time from Google Sheets
   + Visualize data onto a line graph with D3.js
   + Toggle each individual's distribution from pie chart
+  
+## Future Implementation
+The eventual goal is to have account holders log in and see their individual standing within the holding company. This will be built with Ruby on Rails.
+  
+## Genus Holding Company
+Genus Holding Co. is an investment club with the purpose of investing the assets of the partnership in stocks, bonds, and projects for education and benefit of the partners.
+
 
  
