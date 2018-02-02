@@ -75,7 +75,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.drawShares = undefined;
 
-var _util = __webpack_require__(4);
+var _util = __webpack_require__(3);
 
 var margin = { top: 20, right: 50, bottom: 30, left: 50 };
 var width = 960 - margin.left - margin.right;
@@ -235,7 +235,9 @@ var drawShares = exports.drawShares = function drawShares(data, name) {
 
     if (d.earned < 0) d.earned = 0;
 
-    d3.select(".line0").style('stroke-width', d.earned / 150);
+    // add way to how earnings as a funnel rendering, not entire stroke
+    // d3.select(".line0")
+    //   .style('stroke-width', d.earned / 150);
 
     // circle radius hover for Price
     d3.select(".circle-earned").attr("r", d.earned / 300);
@@ -252,14 +254,6 @@ var drawShares = exports.drawShares = function drawShares(data, name) {
     focus1.select('.balance').text('balance: $' + balance);
 
     focus1.select('.shares').text(shares + ' shares');
-
-    // If text gets too low, reposition it beyond date overlap
-    // const shares = focus1.select('.shares')
-    // if ( (height - y1(d["Shares"]) < 25)) {
-    //   shares.attr("transform", "translate(0, 30)rotate(90)")
-    // } else {
-    //   shares.attr("transform", "translate(0, 15)rotate(90)")
-    // }
   }
 };
 
@@ -288,12 +282,14 @@ exports.render = undefined;
 
 var _share_tracking = __webpack_require__(0);
 
-var _distributions = __webpack_require__(3);
+var _distributions = __webpack_require__(4);
+
+var _util = __webpack_require__(3);
 
 var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
 
 var render = exports.render = function render() {
-  loading();
+  (0, _util.loading)();
   Tabletop.init({
     key: publicSpreadsheetUrl,
     callback: draw,
@@ -302,21 +298,67 @@ var render = exports.render = function render() {
 };
 
 var draw = function draw(data, tabletop) {
+  (0, _util.activeButton)();
+  (0, _util.infoToggle)();
 
   $(".fa-spinner").css("display", "none");
-  var shareTracking = tabletop.sheets("John Copy of ShareTracking").elements;
+
   var distributionsData = tabletop.sheets("TestInterestPurchases").elements;
-
-  // drawShares(shareTracking);
   (0, _distributions.drawDistributions)(distributionsData);
-};
-
-var loading = function loading() {
-  $(".fa-spinner").css("display", "inline-block");
 };
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var numberWithCommas = exports.numberWithCommas = function numberWithCommas(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+var loading = exports.loading = function loading() {
+  $(".fa-spinner").css("display", "inline-block");
+};
+
+var activeButton = exports.activeButton = function activeButton() {
+  var btnContainer = document.getElementById("toggle");
+  var btns = btnContainer.getElementsByClassName('toggle');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener("click", function () {
+      var current = document.getElementsByClassName("active");
+      current[0].className = current[0].className.replace(" active", "");
+      this.className += " active";
+    });
+  }
+};
+
+var infoToggle = exports.infoToggle = function infoToggle() {
+  $('.toggle-about').on('click', function () {
+    $('.about').show();
+    $('.company').hide();
+    $('.future').hide();
+  });
+
+  $('.toggle-company').on('click', function () {
+    $('.company').show();
+    $('.about').hide();
+    $('.future').hide();
+  });
+
+  $('.toggle-future').on('click', function () {
+    $('.future').show();
+    $('.about').hide();
+    $('.company').hide();
+  });
+};
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -359,7 +401,6 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var arrayDates = [];
 
   for (var i = 0; i <= inc; i++) {
-
     var month = startMonth + i;
     var incDate = void 0;
     if (month > 12) {
@@ -368,7 +409,6 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     }
 
     incDate = new Date(yearInc + '-' + month + '-02');
-
     arrayDates.push(incDate);
   }
 
@@ -385,50 +425,39 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
       });
     }
 
-    // const getValueDataByDate = valueArray => {
-
     var _loop = function _loop(j) {
       var dateComp = arrayDates[j];
-      // debugger
+
       var dateFilter = _.filter(nameFilter, function (d) {
-        // debugger
         return new Date(d.Date).getTime() < dateComp.getTime();
       });
-      // debugger
-      //get price
+
       var d = dateFilter.length - 1;
-      // convert price from string to int
-      // debugger
+      // get price
+      // convert price from string to float for accuracy
       var priceByDate = parseFloat(dateFilter[d]["Price"]);
-      // debugger
 
-
-      //get other values
       var removePrice = _.filter(dateFilter, function (d) {
         return d['Name'] !== 'Valuation';
       });
-      // debugger
-      // const name = dateFilter[d]["Name"];
 
+      // find name, filtered out 'Valuation'
       var namePerson = _.filter(removePrice, function (d) {
-        // debugger
         return d['Name'];
       });
+
       //get shares
       var sumShares = _.reduce(removePrice, function (acc, num) {
         return acc + parseFloat(num["Shares"]);
       }, 0);
-      // debugger
 
       //get principle
       var principle = _.reduce(removePrice, function (acc, num) {
         return acc + parseFloat(num["Value"]);
       }, 0);
-      // debugger
 
-      //get Earned
+      //get earned
       var sumEarned = sumShares * priceByDate - principle;
-      // debugger
 
       //get balance
       var sumBalance = principle + sumEarned;
@@ -448,7 +477,6 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     for (var j = 0; j < arrayDates.length; j++) {
       _loop(j);
     }
-
     return personDataFrame;
   };
 
@@ -469,7 +497,7 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var finalData = nameDataMapping(arrayOfNames);
 
   // render the initial total
-  (0, _share_tracking.drawShares)(finalData.Total, "Total");
+  (0, _share_tracking.drawShares)(finalData.Total, "Total Account");
 
   var tooltip = d3.select('#pie').append('div').attr('class', 'tooltip');
 
@@ -500,7 +528,7 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     return d["Shares"];
   }).sort(null);
 
-  var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).style('opacity', '0.6').attr('fill', function (d, i) {
+  var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).attr('class', 'pie-slice').attr('fill', function (d, i) {
     return color(d.data["Name"]);
   }).on('click', function (d) {
     var filteredData = finalData[d.data.Name];
@@ -525,21 +553,12 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     tooltip.style('display', 'none');
   });
 
+  var totalButton = d3.select('#pie').append('button').attr('class', 'total-button').text('Total Account').on('click', function (d) {
+    d3.select('.sharetracking').remove();
+    (0, _share_tracking.drawShares)(finalData.Total, "Total Account");
+  });
+
   var distLabel = d3.select('#pie').append('div').attr('class', 'dist-label').text('Distributions');
-};
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var numberWithCommas = exports.numberWithCommas = function numberWithCommas(num) {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 /***/ })

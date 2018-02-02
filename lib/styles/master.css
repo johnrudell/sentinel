@@ -75,6 +75,12 @@ body {
   padding: 40px;
   margin-left: 20px; }
 
+.pie-slice {
+  opacity: 0.6; }
+  .pie-slice:hover {
+    cursor: pointer;
+    opacity: 1; }
+
 rect {
   stroke-width: 2; }
 
@@ -93,14 +99,25 @@ rect {
   font-weight: 300;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  border-radius: 2px; }
+  border-radius: 2px;
+  top: 163px; }
+
+.total-button {
+  position: absolute;
+  text-align: center;
+  align-self: center;
+  font-weight: bolder;
+  font-size: 14px;
+  margin: 0;
+  top: 117px; }
 
 .dist-label {
   position: absolute;
   text-align: center;
   align-self: center;
   font-weight: bolder;
-  font-size: 20px; }
+  font-size: 20px;
+  top: 183px; }
 
 .label {
   font-weight: 600; }
