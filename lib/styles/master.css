@@ -71,10 +71,6 @@ body {
 .sharetracking .text {
   fill: #181f1c; }
 
-.distributions {
-  padding: 40px;
-  margin-left: 20px; }
-
 .pie-slice {
   opacity: 0.6; }
   .pie-slice:hover {

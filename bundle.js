@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -75,7 +75,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.drawShares = undefined;
 
-var _util = __webpack_require__(3);
+var _util = __webpack_require__(1);
 
 var margin = { top: 20, right: 50, bottom: 30, left: 50 };
 var width = 960 - margin.left - margin.right;
@@ -264,56 +264,6 @@ var drawShares = exports.drawShares = function drawShares(data, name) {
 "use strict";
 
 
-var _data = __webpack_require__(2);
-
-window.addEventListener('DOMContentLoaded', _data.render);
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.render = undefined;
-
-var _share_tracking = __webpack_require__(0);
-
-var _distributions = __webpack_require__(4);
-
-var _util = __webpack_require__(3);
-
-var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
-
-var render = exports.render = function render() {
-  (0, _util.loading)();
-  Tabletop.init({
-    key: publicSpreadsheetUrl,
-    callback: draw,
-    simpleSheet: false
-  });
-};
-
-var draw = function draw(data, tabletop) {
-  (0, _util.activeButton)();
-  (0, _util.infoToggle)();
-
-  $(".fa-spinner").css("display", "none");
-
-  var distributionsData = tabletop.sheets("TestInterestPurchases").elements;
-  (0, _distributions.drawDistributions)(distributionsData);
-};
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -355,6 +305,56 @@ var infoToggle = exports.infoToggle = function infoToggle() {
     $('.about').hide();
     $('.company').hide();
   });
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _data = __webpack_require__(3);
+
+window.addEventListener('DOMContentLoaded', _data.render);
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.render = undefined;
+
+var _share_tracking = __webpack_require__(0);
+
+var _distributions = __webpack_require__(4);
+
+var _util = __webpack_require__(1);
+
+var publicSpreadsheetUrl = '1Qjl_H4Mf7ChN0UqricRmArzdjIiXQ6fnTIq_OZqKrbU';
+
+var render = exports.render = function render() {
+  (0, _util.loading)();
+  Tabletop.init({
+    key: publicSpreadsheetUrl,
+    callback: draw,
+    simpleSheet: false
+  });
+};
+
+var draw = function draw(data, tabletop) {
+  (0, _util.activeButton)();
+  (0, _util.infoToggle)();
+
+  $(".fa-spinner").css("display", "none");
+
+  var distributionsData = tabletop.sheets("TestInterestPurchases").elements;
+  (0, _distributions.drawDistributions)(distributionsData);
 };
 
 /***/ }),
@@ -518,7 +518,7 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   // .attr('height', "75%")
   // .attr("preserveAspectRatio", "xMinYMin meet")
   // .attr("viewBox", "0 0 360 360")
-  .attr('width', width).attr('height', height).append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+  .classed('distributions', true).attr('width', width).attr('height', height).append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
 
   var donutWidth = 75;
 
@@ -527,6 +527,8 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var pie = d3.pie().value(function (d) {
     return d["Shares"];
   }).sort(null);
+
+  var arcOver = d3.arc().innerRadius(radius - donutWidth).outerRadius(radius + 10);
 
   var path = svg.selectAll('path').data(pie(data)).enter().append('path').attr('d', arc).attr('class', 'pie-slice').attr('fill', function (d, i) {
     return color(d.data["Name"]);
@@ -540,6 +542,9 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
       return d["Shares"];
     }));
     d3.select(this).style('opacity', '1');
+
+    d3.select(this).transition().duration(500).ease(d3.easeBounce).attr('d', arcOver);
+
     d3.select('.dist-label').style('opacity', '0');
 
     var percent = Math.round(1000 * d.data["Shares"] / total) / 10;
@@ -549,7 +554,9 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     tooltip.style('display', 'flex');
   }).on('mouseout', function () {
     d3.select(this).style('opacity', '0.6');
+    d3.select(this).transition().attr('d', arc);
     d3.select('.dist-label').style('opacity', '1');
+
     tooltip.style('display', 'none');
   });
 

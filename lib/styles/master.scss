@@ -84,8 +84,6 @@ body {
   }
 }
 
-
-
 .active {
   background-color: $color-black;
 }
@@ -97,12 +95,6 @@ body {
 // Sharetracking
 .sharetracking .text {
   fill: $color-black;
-}
-
-// Distributions
-.distributions {
-  padding: 40px;
-  margin-left: 20px;
 }
 
 .pie-slice {
