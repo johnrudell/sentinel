@@ -195,7 +195,7 @@ var drawShares = exports.drawShares = function drawShares(data, name) {
   svg.append('text').attr('class', 'text text5').style('fill', 'rgba(37, 66, 62, 1)').attr('x', 120).attr('y', 40);
 
   function mousemove() {
-
+    debugger;
     var x0 = x.invert(d3.mouse(this)[0]);
     var i = bisectDate(data, x0, 1);
     var d0 = data[i - 1];
@@ -353,7 +353,7 @@ var draw = function draw(data, tabletop) {
 
   $(".fa-spinner").css("display", "none");
 
-  var distributionsData = tabletop.sheets("TestInterestPurchases").elements;
+  var distributionsData = tabletop.sheets("InterestPurchases").elements;
   (0, _distributions.drawDistributions)(distributionsData);
 };
 
