@@ -45,6 +45,63 @@ body {
   #line {
     display: flex;
     justify-content: center;
+    .sharetracking {
+      g {
+        .line {
+          fill: none;
+        }
+        .line0 {
+          stroke: rgba(23, 163, 152, 0.5);
+        }
+        .line1 {
+          stroke: white;
+          stroke-width: 1.5px;
+        }
+        .focus {
+          opacity: 0.7;
+          circle {
+            stroke-dasharray: 3 3;
+            fill: none;
+            stroke: black;
+          }
+        }
+        .focus0 {
+          .x {
+            fill: none;
+            stroke: lightgrey;
+            stroke-width: 1.5px;
+            stroke-dasharray: 3 3;
+          }
+          .y {
+            stroke: none;
+          }
+        }
+        .focus1 {
+          circle {
+            display: none;
+          }
+          .x {
+            stroke: $color-indigo;
+            stroke-dasharray: 3 3;
+          }
+          .y {
+            stroke: rgba(37, 66, 62, 0.5);
+            stroke-width: 25px;
+            stroke-dasharray: 0;
+          }
+        }
+        .overlay {
+          fill: none;
+          pointer-events: all;
+        }
+        .text {
+          fill: $color-indigo;
+        }
+        .text0 {
+          fill: black;
+        }
+      }
+    }
   }
 }
 
@@ -84,17 +141,14 @@ body {
   }
 }
 
+
+
 .active {
   background-color: $color-black;
 }
 
 .sharetracking, .distributions {
   overflow: visible;
-}
-
-// Sharetracking
-.sharetracking .text {
-  fill: $color-black;
 }
 
 .pie-slice {

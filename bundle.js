@@ -82,15 +82,12 @@ var width = 960 - margin.left - margin.right;
 var height = 500 - margin.top - margin.bottom;
 
 var drawShares = exports.drawShares = function drawShares(data, name) {
-  var parseTime = d3.timeParse("%m/%d/%Y");
   var bisectDate = d3.bisector(function (d) {
     return d.date;
   }).left;
 
   var x = d3.scaleTime().range([0, width]);
-
   var y0 = d3.scaleLinear().range([height, 0]);
-
   var y1 = d3.scaleLinear().range([height, 0]);
 
   var linePrice = d3.line().x(function (d) {
@@ -124,7 +121,6 @@ var drawShares = exports.drawShares = function drawShares(data, name) {
   focus0.append('circle').classed("circle-earned", true).attr('r', 4.5);
 
   focus0.append('line').classed('x', true);
-
   focus0.append('line').classed('y', true);
 
   focus0.append('text').classed('price', true).attr("transform", "translate(-200, -15)").attr('dy', '.35em');
@@ -138,7 +134,6 @@ var drawShares = exports.drawShares = function drawShares(data, name) {
   var focus1 = svg.append('g').attr('class', 'focus focus1').style('display', 'none');
 
   focus1.append('line').classed('x', true);
-
   focus1.append('line').classed('y  ', true);
 
   focus1.append('text').classed('price', true).attr("transform", "translate(-225, -15)").attr('dy', '.35em');
@@ -150,109 +145,57 @@ var drawShares = exports.drawShares = function drawShares(data, name) {
   svg.append('rect').attr('class', 'overlay').attr('width', width).attr('height', height).on('mouseover', function () {
     focus0.style('display', null);
     focus1.style('display', null);
-  }).on('mouseout', function () {
-    // only hide share-amount focus
-    // focus0.style('display', 'none')
-    // focus1.style('display', 'none')
   }).on('mousemove', mousemove);
 
-  d3.selectAll('.line').style('fill', 'none');
+  svg.append('text').attr('class', 'text text0').attr('y', 0);
 
-  // earnings background scale line
-  d3.select('.line0').style('stroke', 'rgba(23, 163, 152, 0.5)');
+  svg.append('text').attr('class', 'text text1').attr('y', 20);
 
-  // main price line
-  d3.select('.line1').style('stroke', 'white').style('stroke-width', '1.5px');
+  svg.append('text').attr('class', 'text text2').attr('y', 40);
 
-  d3.selectAll('.overlay').style('fill', 'none').style('pointer-events', 'all');
+  svg.append('text').attr('class', 'text text3').attr('x', 120).attr('y', 0);
 
-  d3.selectAll('.focus').style('opacity', 0.7);
+  svg.append('text').attr('class', 'text text4').attr('x', 120).attr('y', 20);
 
-  d3.selectAll('.focus circle').style('stroke-dasharray', '3 3').style('fill', 'none').style('stroke', 'black');
-
-  d3.selectAll('.focus1 circle').style('display', 'none');
-
-  d3.selectAll('.focus0 line.x').style('fill', 'none').style('stroke', 'lightgrey').style('stroke-width', '1.5px').style('stroke-dasharray', '3 3');
-
-  d3.selectAll('.focus0 line.y').style('stroke', 'none');
-
-  d3.selectAll('.focus1 line.x').style('stroke', 'rgba(37, 66, 62, 1)').style('stroke-dasharray', '3 3');
-
-  d3.selectAll('.focus1 line.y').style('stroke', 'rgba(37, 66, 62, 0.5)').style('stroke-width', '25px').style('stroke-dasharray', '0');
-
-  d3.selectAll('.text').attr('x', 0);
-
-  svg.append('text').attr('class', 'text text0').attr('fill', 'black').attr('y', 0);
-
-  svg.append('text').attr('class', 'text text1').style('fill', 'rgba(37, 66, 62, 1)').attr('y', 20);
-
-  svg.append('text').attr('class', 'text text2').style('fill', 'rgba(37, 66, 62, 1)').attr('y', 40);
-
-  svg.append('text').attr('class', 'text text3').style('fill', 'rgba(37, 66, 62, 1)').attr('x', 120).attr('y', 0);
-
-  svg.append('text').attr('class', 'text text4').style('fill', 'rgba(37, 66, 62, 1)').attr('x', 120).attr('y', 20);
-
-  svg.append('text').attr('class', 'text text5').style('fill', 'rgba(37, 66, 62, 1)').attr('x', 120).attr('y', 40);
+  svg.append('text').attr('class', 'text text5').attr('x', 120).attr('y', 40);
 
   function mousemove() {
-    debugger;
     var x0 = x.invert(d3.mouse(this)[0]);
     var i = bisectDate(data, x0, 1);
     var d0 = data[i - 1];
     var d1 = data[i];
     var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
 
-    var balance = (0, _util.numberWithCommas)(Math.floor(d.balance));
-    var price = (0, _util.numberWithCommas)(Math.floor(d.price));
-    var shares = (0, _util.numberWithCommas)(Math.floor(d.shares));
-    var earned = (0, _util.numberWithCommas)(Math.floor(d.earned));
-    var principle = (0, _util.numberWithCommas)(Math.floor(d.principle));
-
-    d3.selectAll(".focus").selectAll('line.x').attr('x1', 0).attr('x2', -x(d.date)).attr('y1', 0).attr('y2', 0);
+    var balance = (0, _util.numberWithCommas)(d.balance);
+    var price = (0, _util.numberWithCommas)(d.price);
+    var shares = (0, _util.numberWithCommas)(d.shares);
+    var earned = (0, _util.numberWithCommas)(d.earned);
+    var principle = (0, _util.numberWithCommas)(d.principle);
 
     d3.select('.text0').text('' + name);
-
     d3.select('.text1').text('price: $' + price);
-
     d3.select('.text2').text('shares: ' + shares);
-
     d3.select('.text3').text('principle: $' + principle);
-
     d3.select('.text4').text('earned: $' + earned);
-
     d3.select('.text5').text('balance: $' + balance);
 
-    // share value dashed line
-    d3.select(".focus0").selectAll('line.x').attr('x2', -x(d.date) - width);
+    d3.selectAll(".focus").selectAll('line.x, line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 0);
 
-    // share amt dashed line
-    d3.select(".focus1").selectAll('line.x').attr('x2', x(d.date) + width * 2);
-
-    d3.selectAll(".focus").selectAll('line.y').attr('x1', 0).attr('x2', 0).attr('y1', 0);
-
-    focus0.select('line.y').attr('y2', height - y0(d.price));
-    focus1.select('line.y').attr('y2', height - y1(d.balance));
+    focus0.selectAll('line.x').attr('x2', -x(d.date) - width);
+    focus0.selectAll('line.y').attr('y2', height - y0(d.price));
+    focus1.selectAll('line.x').attr('x2', x(d.date) + width * 2);
+    focus1.selectAll('line.y').attr('y2', height - y1(d.balance));
 
     if (d.earned < 0) d.earned = 0;
-
-    // add way to how earnings as a funnel rendering, not entire stroke
-    // d3.select(".line0")
-    //   .style('stroke-width', d.earned / 150);
-
-    // circle radius hover for Price
-    d3.select(".circle-earned").attr("r", d.earned / 300);
-
-    // bar width hover for shares
-    d3.select('.focus1 line.y').style('stroke-width', d.shares / 25);
+    focus0.select(".circle-earned").attr("r", d.earned / 300);
+    focus1.select('line.y').style('stroke-width', d.shares / 25);
 
     // append text
     focus0.attr('transform', 'translate(' + x(d.date) + ', ' + y0(d.price) + ')');
     focus0.select('.price').text('price: $' + price);
     focus0.select('.earned').text('$' + earned + ' earned');
-
     focus1.attr('transform', 'translate(' + x(d.date) + ', ' + y1(d.balance) + ')');
     focus1.select('.balance').text('balance: $' + balance);
-
     focus1.select('.shares').text(shares + ' shares');
   }
 };
@@ -268,7 +211,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var numberWithCommas = exports.numberWithCommas = function numberWithCommas(num) {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 var loading = exports.loading = function loading() {
@@ -388,7 +331,6 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   });
 
   var parseTime = d3.timeParse("%m/%d/%Y");
-
   var cMonth = new Date().getMonth() + 1;
   var cYear = new Date().getFullYear();
 
@@ -396,9 +338,8 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var startMonth = 2;
   var yearDif = cYear - startYear;
   var inc = cMonth + yearDif * 12 - startMonth;
-  var yearInc = startYear;
-
   var arrayDates = [];
+  var yearInc = startYear;
 
   for (var i = 0; i <= inc; i++) {
     var month = startMonth + i;
@@ -502,15 +443,13 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   var tooltip = d3.select('#pie').append('div').attr('class', 'tooltip');
 
   tooltip.append('div').attr('class', 'label');
-
   tooltip.append('div').attr('class', 'count');
-
   tooltip.append('div').attr('class', 'percent');
 
   var width = 360;
   var height = 360;
+  var donutWidth = 75;
   var radius = Math.min(width, height) / 2;
-
   var color = d3.scaleOrdinal(d3.schemeCategory20);
 
   var svg = d3.select('#pie').append('svg')
@@ -519,8 +458,6 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
   // .attr("preserveAspectRatio", "xMinYMin meet")
   // .attr("viewBox", "0 0 360 360")
   .classed('distributions', true).attr('width', width).attr('height', height).append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
-
-  var donutWidth = 75;
 
   var arc = d3.arc().innerRadius(radius - donutWidth).outerRadius(radius);
 
@@ -541,9 +478,8 @@ var drawDistributions = exports.drawDistributions = function drawDistributions(d
     var total = d3.sum(data.map(function (d) {
       return d["Shares"];
     }));
-    d3.select(this).style('opacity', '1');
 
-    d3.select(this).transition().duration(500).ease(d3.easeBounce).attr('d', arcOver);
+    d3.select(this).style('opacity', '1').transition().duration(500).ease(d3.easeBounce).attr('d', arcOver);
 
     d3.select('.dist-label').style('opacity', '0');
 

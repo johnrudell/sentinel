@@ -32,6 +32,42 @@ body {
 .top #line {
   display: flex;
   justify-content: center; }
+  .top #line .sharetracking g .line {
+    fill: none; }
+  .top #line .sharetracking g .line0 {
+    stroke: rgba(23, 163, 152, 0.5); }
+  .top #line .sharetracking g .line1 {
+    stroke: white;
+    stroke-width: 1.5px; }
+  .top #line .sharetracking g .focus {
+    opacity: 0.7; }
+    .top #line .sharetracking g .focus circle {
+      stroke-dasharray: 3 3;
+      fill: none;
+      stroke: black; }
+  .top #line .sharetracking g .focus0 .x {
+    fill: none;
+    stroke: lightgrey;
+    stroke-width: 1.5px;
+    stroke-dasharray: 3 3; }
+  .top #line .sharetracking g .focus0 .y {
+    stroke: none; }
+  .top #line .sharetracking g .focus1 circle {
+    display: none; }
+  .top #line .sharetracking g .focus1 .x {
+    stroke: #25423e;
+    stroke-dasharray: 3 3; }
+  .top #line .sharetracking g .focus1 .y {
+    stroke: rgba(37, 66, 62, 0.5);
+    stroke-width: 25px;
+    stroke-dasharray: 0; }
+  .top #line .sharetracking g .overlay {
+    fill: none;
+    pointer-events: all; }
+  .top #line .sharetracking g .text {
+    fill: #25423e; }
+  .top #line .sharetracking g .text0 {
+    fill: black; }
 
 .bottom {
   margin: 20px;
@@ -67,9 +103,6 @@ body {
 
 .sharetracking, .distributions {
   overflow: visible; }
-
-.sharetracking .text {
-  fill: #181f1c; }
 
 .pie-slice {
   opacity: 0.6; }
